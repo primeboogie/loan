@@ -1,0 +1,4 @@
+config/.env
+config/config.php
+
+logs
