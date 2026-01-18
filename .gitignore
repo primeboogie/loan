@@ -5,6 +5,7 @@ config/config.php
 
 logs/
 
+# wallet log
 callbackurl/*.txt
 callbackurl/*.json
 callbackurl/*.log
