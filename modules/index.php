@@ -7,6 +7,9 @@ function unauthorized($action)
 {
     switch ($action) {
         case 'login':
+            case 'allusertest':
+
+        case 'memory':
         case 'adminlogin':
         case 'auth':
         case 'freeuser':

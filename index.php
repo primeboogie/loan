@@ -55,10 +55,9 @@ include "modules/index.php";
 
 unset($_SESSION);
 
+$_SESSION['startmemory'] =  memory_get_usage();
 $action = isset($_GET['action']) ? $_GET['action'] : '';
 
 unauthorized($action);
 
-sendJsonResponse(401,false,"null",$_COOKIE);
-
-
+sendJsonResponse(401, false, "null", $_COOKIE);

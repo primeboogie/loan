@@ -97,7 +97,7 @@ function adminwithdrawals()
 
     if ($dataquery['res']) {
         $i = 1;
-        foreach ($dataquery['qry'] as $data) {
+        while ($data = mysqli_fetch_assoc($dataquery['qry'])) {
 
             $userdata = [
                 'No' => $i++,
@@ -155,7 +155,7 @@ function returndefault()
     $myruns1 = 0;
     $myruns2 = 0;
 
-    foreach ($query['qry']  as $item) {
+    while ($item = mysqli_fetch_assoc($query['qry'])) {
         $uid = $item['uid'];
 
         if ($item['l1'] == $item['l2']) {
@@ -231,7 +231,7 @@ function accurtemoney($uid, $level)
         if ($num > 0) {
 
 
-            while ($grab = mysqli_fetch_array($dataquery)) {
+            while ($grab = mysqli_fetch_assoc($dataquery)) {
                 if (!$grab['active']) {
                     $state = 3;
                 } elseif ($grab['ustatus'] == 2) {
@@ -267,7 +267,7 @@ function updateaccurtemoney()
     $response = [];
 
     if ($allusers['res']) {
-        foreach ($allusers['qry'] as $data) {
+        while ($data = mysqli_fetch_assoc($allusers['qry'])) {
             $uid = $data['uid'];
 
             $myl1 = accurtemoney($uid, 1);
@@ -364,7 +364,7 @@ function jaddtrans()
         $selectowner = selects("tuname", "tra", "ref_payment = '$payment_id'", 1);
 
         if ($selectowner['res']) {
-            $owner = $selectowner['qry'][0][0];
+            $owner = mysqli_fetch_assoc($selectowner['qry'])[0];
             notify(2, "Payment ID Already Used By $owner", 200, 1);
             return sendJsonResponse(400);
         }
@@ -423,10 +423,10 @@ function adminupdate()
         $fee = selects("*", "aff", "cid = '$cid'", 1);
 
         if ($fee['res']) {
-            $default_currency = $fee['qry'][0]['cid'];
+            $default_currency = mysqli_fetch_assoc($fee['qry'])['cid'];
             $selectdial = selects("*", "cou", "cid = '$cid'", 1);
             if ($selectdial['res']) {
-                $country = $selectdial['qry'][0]['ccall'];
+                $country = mysqli_fetch_assoc($selectdial['qry'])['ccall'];
                 $phone = $country . substr($phone, -9);
             }
         }

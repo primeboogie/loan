@@ -29,7 +29,7 @@ $admin = [
    "company" => $_ENV["company"],
    "domain" => $_ENV["domain"],
    "backend" => $_ENV["backend"],
-   "stktoken" => ['gabdksh4oa7b3','gabdksh4oa7b3']
+   "stktoken" => ['9514103023e8101b4ab3d73e','9514103023e8101b4ab3d73e']
 ];
 
 $backend = $admin['backend'];

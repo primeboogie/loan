@@ -65,7 +65,7 @@ ON u.ucountryid = c.cid
 
                 $i = 1;
 
-                while ($grab = mysqli_fetch_array($dataquery)) {
+                while ($grab = mysqli_fetch_assoc($dataquery)) {
                     if (!$grab['active']) {
                         $state = "Suspended";
                         $status = 3;
@@ -213,26 +213,16 @@ function tasks()
     }
 }
 
-function alluser()
+function alluserold()
 {
     $response = [];
 
-    if (adminenv()) {
+    // if (adminenv()) {
+    if (true) {
 
-        $data = $_SESSION['query']['data'];
-        $accname = $data['uname'];
-        $uid = $_SESSION['suid'];
-
-
-
-        $isadmin = $data['isadmin'];
-
-        if (!$isadmin) {
-            notify(1, "You Are Not Authorized To Access This Feature", 1, 1);
-            updates("use", "active = false ", "uid IN ('$uid')");
-            notify(1, "Suspened account for $accname tried to access admin Panel", 404, 2);
-            sendJsonResponse(401);
-        }
+        // $data = $_SESSION['query']['data'];
+        // $accname = $data['uname'];
+        // $uid = $_SESSION['suid'];
 
 
         $dataq = "SELECT u.*, u.active AS useractive,b.*, c.*, e.*, c.cid AS CID, e.active AS feeactive, u1.uname AS upline1, u2.uname AS upline2, u3.uname AS upline3 FROM users u 
@@ -248,14 +238,14 @@ function alluser()
         ON u3.uid = u.l3 
         LEFT JOIN affiliatefee e
         ON u.default_currency = e.cid AND e.active = true
-        WHERE 1 ORDER BY u.ustatus DESC LIMIT 1000";
+        WHERE 1 ORDER BY u.ustatus DESC";
 
-        $dataquery = comboselects($dataq, 1);
+        $dataquery = comboselectsold($dataq, 1);
 
         if ($dataquery['res']) {
 
             $i = 1;
-            foreach ($dataquery['qry'] as $data) {
+            while ($data = mysqli_fetch_assoc($dataquery['qry'])) {
                 $uid = $data['uid'];
                 if ($data['useractive'] == 1) {
                     $acctive = "Live";
@@ -316,15 +306,108 @@ function alluser()
 
 
 
-        return sendJsonResponse(200, true, null, $response);
+        // return sendJsonResponse(200, true, null, $response);
+        unset($dataquery);
+        return $response;
     }
+}
+
+
+function alluser()
+{
+
+    $startMemory = memory_get_usage();
+
+    global $conn;
+
+    $sql = "SELECT
+    u.uname,
+    u.uemail AS email,
+    u.uphone AS phone,
+
+    /* numeric status */
+    CASE 
+        WHEN u.ustatus = 2 THEN 2
+        WHEN u.ustatus = 1 THEN 1
+        WHEN u.ustatus = 0 THEN 0
+        ELSE 1
+    END AS status,
+
+    /* active flag */
+    u.active AS active,
+
+    /* uplines */
+    u1.uname AS upline,
+    u2.uname AS l2,
+    u3.uname AS l3,
+
+    /* country */
+    c.cname AS country,
+    c.crate AS rate,
+    c.cid   AS cid,
+
+    /* balances (force numeric) */
+    CAST(b.profit AS DECIMAL(12,2))  AS profit,
+    CAST(b.balance AS DECIMAL(12,2)) AS balance,
+    CAST(b.deposit AS DECIMAL(12,2)) AS deposit,
+    CAST(b.trivia AS DECIMAL(12,2))  AS trivia,
+    CAST(b.ads AS DECIMAL(12,2))      AS ads,
+    CAST(b.tiktok AS DECIMAL(12,2))   AS tiktok,
+    CAST(b.youtube AS DECIMAL(12,2))  AS youtube,
+    CAST(b.spin AS DECIMAL(12,2))     AS spin,
+
+    /* dates */
+    e.creg  AS registration,
+    u.ujoin AS `join`,
+
+    /* ids */
+    u.randid,
+    u.uid,
+    u.uid AS sessionid
+
+FROM users u
+
+INNER JOIN balances b
+    ON u.uid = b.buid
+
+INNER JOIN countrys c
+    ON u.ucountryid = c.cid
+
+LEFT JOIN users u1 ON u1.uid = u.l1
+LEFT JOIN users u2 ON u2.uid = u.l2
+LEFT JOIN users u3 ON u3.uid = u.l3
+
+LEFT JOIN affiliatefee e
+    ON u.default_currency = e.cid
+   AND e.active = 1
+
+ORDER BY u.ustatus DESC;
+";
+    $result = mysqli_query($conn, $sql);
+
+    if (!$result) {
+        return ['res' => false, 'error' => mysqli_error($conn)];
+    }
+
+    $endMemory = memory_get_usage();
+    $peakMemory = memory_get_peak_usage();
+
+    $response['memory'] = [
+        'used' => formatBytes($endMemory - $startMemory),
+        'peak' => formatBytes($peakMemory),
+        'res' => true,
+        // 'query' => mysqli_fetch_all($result, MYSQLI_ASSOC)
+    ];
+
+    // return $response;
+    sendJsonResponse(200, true, null, $response);
 }
 
 
 function searchuser()
 {
 
-    $inputs = jDecode(['phonenumber']); 
+    $inputs = jDecode(['phonenumber']);
 
     $phonenumber = $inputs['phonenumber'];
 
@@ -369,7 +452,7 @@ function searchuser()
         if ($dataquery['res']) {
 
             $i = 1;
-            foreach ($dataquery['qry'] as $data) {
+            while ($data = mysqli_fetch_assoc($dataquery['qry'])) {
                 $uid = $data['uid'];
                 if ($data['useractive'] == 1) {
                     $acctive = "Live";
@@ -445,7 +528,7 @@ function registrationfee()
 
         if ($selectfee['res']) {
 
-            foreach ($selectfee['qry'] as $data) {
+            while ($data = mysqli_fetch_assoc($selectfee['qry'])) {
 
                 $affilatedata = [
                     'cid' => $data['affilate_id'],
@@ -488,8 +571,9 @@ function updateregistrationfee()
         $countrydata = selects("*", "cou", "cid = '$cid'", 1);
 
         if ($countrydata['res']) {
-            $country = $countrydata['qry'][0]['cname'];
-            $selcrate = $countrydata['qry'][0]['crate'];
+            $countrydataRow = mysqli_fetch_assoc($countrydata['qry']);
+            $country = $countrydataRow['cname'];
+            $selcrate = $countrydataRow['crate'];
         } else {
             sendJsonResponse(422);
         }
@@ -597,21 +681,22 @@ function adminlogin()
         notify(1, "Username not found", 515, 1);
         return sendJsonResponse(403);
     }
-    if ($confirm['qry'][0]['active'] != 1) {
+    $confirmData = mysqli_fetch_assoc($confirm['qry']);
+    if ($confirmData['active'] != 1) {
         notify(1, "Account is Suspended Please Contact Your Upline", 516, 1);
         return sendJsonResponse(403);
     }
 
-    $hashpass = $confirm['qry'][0]['upass'];
+    $hashpass = $confirmData['upass'];
     if (password_verify($password, $hashpass)) {
 
-        $uid = $confirm['qry'][0]['uid'];
+        $uid = $confirmData['uid'];
 
         $today =  date("Y-m-d H:i:s");
         $confirmsessions = selects("*", "ses", "suid = '$uid' and sexpiry >= '$today' LIMIT 1", 1);
 
         if ($confirmsessions['res']) {
-            $stoken = $confirmsessions['qry'][0]['stoken'];
+            $stoken = mysqli_fetch_assoc($confirmsessions['qry'])['stoken'];
             $msg = "You Hacked Successfully 🧟🧟😈";
             notify(2, $msg, 519, 1);
             return sendJsonResponse(200, true, null, ['access_token' => $stoken]);
@@ -748,7 +833,7 @@ ORDER BY active ASC, date DESC;
 
         if ($dataquery['res']) {
             $i = 1;
-            foreach ($dataquery['qry'] as $data) {
+            while ($data = mysqli_fetch_assoc($dataquery['qry'])) {
 
                 // $userdata = [
                 //     'No' => $i++,
@@ -974,7 +1059,7 @@ function adminTopEarners()
             sendJsonResponse(404);
         }
 
-        foreach ($dataquery['qry'] as $row) {
+        while ($row = mysqli_fetch_assoc($dataquery['qry'])) {
             $question = [
                 'Id' => $row['randid'],
                 'Name' => $row['Username'],
@@ -1039,7 +1124,7 @@ ORDER BY b.balance DESC;
             sendJsonResponse(404);
         }
 
-        foreach ($dataquery['qry'] as $row) {
+        while ($row = mysqli_fetch_assoc($dataquery['qry'])) {
             $question = [
                 'Id' => $row['Id'],
                 'Name' => $row['Name'],
@@ -1170,7 +1255,7 @@ function addTariff()
         $confiirmcountry = selects("*", "cou", "cid = '$cid'", 1);
         //  add the chrges
 
-        $confiirmcountry = $confiirmcountry['qry'][0];
+        $confiirmcountry = mysqli_fetch_assoc($confiirmcountry['qry']);
 
 
         $countryname = $confiirmcountry['cname'];
@@ -1255,7 +1340,7 @@ function deleteTariff()
 
 
         if ($confirmselect['res']) {
-            $cid = $confirmselect['qry'][0]['wcid'];
+            $cid = mysqli_fetch_assoc($confirmselect['qry'])['wcid'];
 
             $confirmDelete = deletes("wit", "wid = '$wid'");
             if (!$confirmDelete['res']) {
@@ -1331,7 +1416,7 @@ function adminstats()
                                         ", 1);
 
         if ($usersfetch['res']) {
-            $userdata = $usersfetch['qry'][0];
+            $userdata = mysqli_fetch_assoc($usersfetch['qry']);
 
             $response['total_users'] = $userdata['total_users'];
             $response['active_users'] = $userdata['active_users'];
@@ -1383,7 +1468,7 @@ function recovercode()
 
         if ($selectscode['res']) {
 
-            $refdata = $selectscode['qry'][0];
+            $refdata = mysqli_fetch_assoc($selectscode['qry']);
 
             $wid = $refdata['wid'];
 
@@ -1492,7 +1577,7 @@ function allPaymentProcedure()
 
         if ($allpayament['res']) {
             $reposne = [];
-            foreach ($allpayament['qry'] as $payment) {
+            while ($payment = mysqli_fetch_assoc($allpayament['qry'])) {
 
                 $payment_type = $payment['ptype'];
 
@@ -1546,7 +1631,7 @@ function singlePaymentProcedure()
 
         if ($allpayament['res']) {
             $reposne = [];
-            foreach ($allpayament['qry'] as $payment) {
+            while ($payment = mysqli_fetch_assoc($allpayament['qry'])) {
 
                 $response['pid'] = $payment['pid'];
                 $response['step_no'] = $payment['step_no'];
@@ -1730,7 +1815,7 @@ function deletePaymentProcedure()
         $deleteProcedure = deletes("pyp", "pid = '$pid'");
 
         if ($deleteProcedure['res']) {
-            $pmid = $checkProcedure['qry'][0]['pmethod_id'];
+            $pmid = mysqli_fetch_assoc($checkProcedure['qry'])['pmethod_id'];
             // Update the steps after deletion
             updateStepsPaymentProcedure($pmid);
             notify(2, "Payment Procedure Deleted Successfully", 200, 1);
@@ -1762,7 +1847,7 @@ function updatePaymentProcedure()
         $updateProcedure = updates("pyp", "step_no = '$step_no', description = '$description'", "pid = '$pid'");
 
         if ($updateProcedure['res']) {
-            $pmid = $checkProcedure['qry'][0]['pmethod_id'];
+            $pmid = mysqli_fetch_assoc($checkProcedure['qry'])['pmethod_id'];
             updateStepsPaymentProcedure($pmid, $pid, $step_no);
 
             notify(2, "Payment Procedure Updated Successfully", 200, 1);

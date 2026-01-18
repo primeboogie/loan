@@ -3,72 +3,9 @@ require 'config.php';
 
 date_default_timezone_set('Africa/Nairobi');
 
-// use PHPMailer\PHPMailer\PHPMailer;
-// use PHPMailer\PHPMailer\Exception;
-// use PHPMailer\PHPMailer\SMTP;
-
 $today =  date("Y-m-d H:i:s");
 $mintoday =  date("Y-m-d");
 
-// function sendJsonResponse($statusCode, $resultcode = false, $message = null, $data = null)
-// {
-
-//     $resultcode ??= false;
-//     http_response_code($statusCode);
-
-//     if (!$message) {
-//         switch ($statusCode) {
-//             case 200:
-//                 $message = 'OK';
-//                 $resultcode = true;
-//                 break;
-//             case 201:
-//                 $message = 'Action was executed successfully';
-//                 break;
-//             case 204:
-//                 $message = 'No Content';
-//                 break;
-//             case 400:
-//                 $message = 'Bad Request: [' . $_SERVER['REQUEST_METHOD'] . '] is Not Allowed';
-//                 break;
-//             case 401:
-//                 $message = 'Unauthorized';
-//                 break;
-//             case 403:
-//                 $message = 'Forbidden';
-//                 break;
-//             case 404:
-//                 $message = '404 Not Found';
-//                 break;
-//             case 422:
-//                 $message = 'Unprocessable Entity Missing Parameters.';
-//                 break;
-//             case 0:
-//                 $message = 'Timed out Connection: Try again Later';
-//                 notify(1, "Timed out Connection: Try again Later.", 0, 1);
-//                 break;
-//             default:
-//                 $message = 'Timed out Connection: Try again Later';
-//         }
-//     }
-
-//     $response = ['status' => $statusCode, 'resultcode' => $resultcode, 'msg' => $message];
-
-//     if (strstate($data)) {
-//         $response['data'] = $data;
-//     }
-
-//     if (isset($_SESSION['notify'])) {
-//         $response['info'] = $_SESSION['notify'];
-//     }
-
-//     unset($_SESSION);
-//     header('Content-Type: application/json');
-//     echo json_encode($response);
-//     // echo json_encode(["text" => "Cliks"]);
-
-//     exit;
-// }
 
 function sendJsonResponse($statusCode, $resultcode = false, $message = null, $data = null)
 {
@@ -117,6 +54,15 @@ function sendJsonResponse($statusCode, $resultcode = false, $message = null, $da
     if (strstate($data)) {
         $response['data'] = $data;
     }
+
+    $startMemory = $_SESSION['startmemory'];
+
+    $endMemory = memory_get_usage();
+    $peakMemory = memory_get_peak_usage();
+    $response['memory'] = [
+        'used' => formatBytes($endMemory - $startMemory),
+        'peak' => formatBytes($peakMemory),
+    ];
 
     if (isset($_SESSION['notify'])) {
         $response['info'] = $_SESSION['notify'];
@@ -682,6 +628,45 @@ function inserts($tb, $tbwhat, $tbvalues)
     return $array;
 }
 
+function formatBytes($bytes)
+{
+    if ($bytes <= 0) {
+        return '0 MB';
+    }
+
+    return round($bytes / 1024 / 1024, 2) . ' MB';
+}
+
+
+
+function memory()
+{
+    $startMemory = memory_get_usage();
+
+    $allusers = alluser();
+    // $query  = "SELECT * FROM users";
+    // $allusers = comboselects($query);
+
+    // while ($new = mysqli_fetch_assoc($allusers['qry'])) {
+    //     $data[] = [
+    //         "uid" => $new['uid'],
+    //         "username" => $new['uname'],
+    //     ];
+    // }
+
+    $endMemory = memory_get_usage();
+    $peakMemory = memory_get_peak_usage();
+
+    $array['memory'] = [
+        'used' => formatBytes($endMemory - $startMemory),
+        'peak' => formatBytes($peakMemory),
+        // 'data' => $allusers,
+        // 'data' => $data,
+        // 'data' =>  [],
+    ];
+
+    sendJsonResponse(200, true, null, $array);
+}
 function selects($all, $tb, $tbwhere, $datatype =  2)
 {
     global $conn;
@@ -711,18 +696,19 @@ function selects($all, $tb, $tbwhere, $datatype =  2)
     $results = mysqli_query($conn,  $selects);
     if ($results) {
         $num = mysqli_num_rows($results);
+
         if ($num > 0) {
-            if ($datatype == 1) {
-                while ($grab = mysqli_fetch_array($results)) {
-                    $qry[] = $grab;
-                }
-            } else {
-                while ($grab = mysqli_fetch_row($results)) {
-                    $qry[] = $grab;
-                }
-            }
+            // if ($datatype == 1) {
+            //     while ($grab = mysqli_fetch_assoc($results)) {
+            //         $qry[] = $grab;
+            //     }
+            // } else {
+            //     while ($grab = mysqli_fetch_row($results)) {
+            //         $qry[] = $grab;
+            //     }
+            // }
             $array['res'] = true;
-            $array['qry'] = $qry;
+            $array['qry'] = $results;
             $array['rows'] = $num;
         }
     } else {
@@ -747,17 +733,18 @@ function comboselects($query, $datatype =  2)
     if ($results) {
         $num = mysqli_num_rows($results);
         if ($num > 0) {
-            if ($datatype == 1) {
-                while ($grab = mysqli_fetch_array($results)) {
-                    $qry[] = $grab;
-                }
-            } else {
-                while ($grab = mysqli_fetch_row($results)) {
-                    $qry[] = $grab;
-                }
-            }
+            // if ($datatype == 1) {
+            //     while ($grab = mysqli_fetch_assoc($results)) {
+            //         $qry[] = $grab;
+            //     }
+            // } else {
+            //     while ($grab = mysqli_fetch_row($results)) {
+            //         $qry[] = $grab;
+            //     }
+            // }
             $array['res'] = true;
-            $array['qry'] = $qry;
+            // $array['qry'] = mysqli_fetch_assoc($results);
+            $array['qry'] = $results;
             $array['rows'] = $num;
         }
     } else {
@@ -765,6 +752,46 @@ function comboselects($query, $datatype =  2)
         // notify(1,"Error Querring " . $array['qry']['data'],400,3);
 
     }
+    return $array;
+}
+
+
+function comboselectsold($query, $datatype =  2)
+{
+    global $conn;
+
+    $array = [];
+    $array['res'] = false;
+    $array['rows'] = 0;
+    $array['qry'] = [];
+
+    if (empty($query)) {
+        return $array;
+    }
+    $results = mysqli_query($conn,  $query);
+    if ($results) {
+        $num = mysqli_num_rows($results);
+        if ($num > 0) {
+            // if ($datatype == 1) {
+            //     while ($grab = mysqli_fetch_assoc($results)) {
+            //         $qry[] = $grab;
+            //     }
+            // } else {
+            //     while ($grab = mysqli_fetch_row($results)) {
+            //         $qry[] = $grab;
+            //     }
+            // }
+            $array['res'] = true;
+            $array['qry'] = $results;
+            $array['rows'] = $num;
+        }
+    } else {
+        $array['qry']['data'] = mysqli_error($conn);
+        // notify(1,"Error Querring " . $array['qry']['data'],400,3);
+
+    }
+
+
     return $array;
 }
 
@@ -860,7 +887,7 @@ function check($type, $tb, $value)
 
     if ($run['res'] === true) {
         $array["res"] = true;
-        $array["qry"] = $run['qry'][0];
+        $array["qry"] = mysqli_fetch_assoc($run['qry']);
     }
     return $array;
 }
@@ -950,7 +977,7 @@ function checktoken($tb, $token, $cap = false)
     $token = check($id, $tb, $token);
 
     if ($token['res']) {
-        $token = checktoken($tb, generatetoken(strlen($token['qry'][0]) + 1, $cap), $cap);
+        $token = checktoken($tb, generatetoken(strlen($token['qry'][$id]) + 1, $cap), $cap);
     } else {
         $token = $pretoken;
     }
@@ -994,22 +1021,23 @@ function login()
         notify(1, "Username not found", 515, 1);
         return sendJsonResponse(403);
     }
-    if ($confirm['qry'][0]['active'] != 1) {
+    $confirmData = mysqli_fetch_assoc($confirm['qry']);
+    if ($confirmData['active'] != 1) {
         notify(1, "Account is Suspended Please Contact Your Upline", 516, 1);
         return sendJsonResponse(403);
     }
 
-    $hashpass = $confirm['qry'][0]['upass'];
+    $hashpass = $confirmData['upass'];
     if (password_verify($password, $hashpass)) {
 
-        $uid = $confirm['qry'][0]['uid'];
+        $uid = $confirmData['uid'];
 
         $today =  date("Y-m-d H:i:s");
         deletes("ses", "sexpiry <= '$today'");
         $confirmsessions = selects("*", "ses", "suid = '$uid' and sexpiry >= '$today' LIMIT 1", 1);
 
         if ($confirmsessions['res']) {
-            $stoken = $confirmsessions['qry'][0]['stoken'];
+            $stoken = mysqli_fetch_assoc($confirmsessions['qry'])['stoken'];
             $msg = "Login Was Successful Dear $uname";
             notify(2, $msg, 519, 1);
             $_SESSION['suid'] = $uid;
@@ -1079,7 +1107,7 @@ function auths()
     $confirmsessions = selects("*", "ses", "stoken = '$token' and sexpiry >= '$today' LIMIT 1", 1);
 
     if ($confirmsessions['res']) {
-        $_SESSION['suid'] = $confirmsessions['qry'][0]['suid'];
+        $_SESSION['suid'] = mysqli_fetch_assoc($confirmsessions['qry'])['suid'];
         data();
         if (isset($_SESSION['query'])) {
             $response['status'] = true;
@@ -1253,8 +1281,8 @@ function stkpush()
             }
 
             $curdate = date("Y-m-d");
-            $totaldip = selects("SUM(tamount)", "tra", "tcat = '7' AND tstatus = '2' AND tdate like '%$curdate%'", 1)['qry'][0][0] ?? "1";
-            $totalwith = selects("SUM(tamount)", "tra", "tcat = '3' AND tdate like '%$curdate%'", 1)['qry'][0][0] ?? "1";
+            $totaldip = mysqli_fetch_assoc(selects("SUM(tamount)", "tra", "tcat = '7' AND tstatus = '2' AND tdate like '%$curdate%'", 1)['qry'])[0] ?? "1";
+            $totalwith = mysqli_fetch_assoc(selects("SUM(tamount)", "tra", "tcat = '3' AND tdate like '%$curdate%'", 1)['qry'])[0] ?? "1";
             $amount = $amount . " KES";
             notify(2, $desc, "$rescode", 1);
             $msg = " Confirmed New-Deposit;
@@ -1292,6 +1320,7 @@ function stkpush()
 function sendmail($uname, $uemail, $msg, $subarray, $attachmentPath = null, $attachmentName = null, $calendarEvent = null)
 {
     $url = 'https://super-qash.com/auth/';
+    // $url = 'https://cocoinc.co.ke/auth/';
 
 
     $sub = $subarray;
@@ -1432,36 +1461,28 @@ function data()
             INNER JOIN countrys c ON u.default_currency = c.cid 
             LEFT JOIN affiliatefee e ON u.default_currency = e.cid AND e.active = true 
             LEFT JOIN withdrawalcharges w ON u.default_currency = w.wcid AND w.active = true 
-            WHERE u.uid = '$uid' AND u.active = true ORDER BY w.tariff ASC ;
+            WHERE u.uid = '$uid' AND u.active = true ORDER BY w.tariff ASC LIMIT 2;
             ";
-        $dataquery = comboselects($dataq, 1);
+        $userdata = comboselects($dataq, 1);
 
-        if ($dataquery['res']) {
-            $dataquery2 = $dataquery['qry'];
-            $dataquery = $dataquery['qry'][0];
+        if ($userdata['rows'] > 0) {
+            // $dataquery2 = $dataquery;
 
             $totalq = "SELECT SUM(tamount) FROM transactions WHERE tuid = '$uid' AND tcat = 3 AND tstatus = 2";
-            $totalquery = comboselects($totalq, 1);
+            $totalquery = mysqli_fetch_assoc(comboselects($totalq, 1)['qry']);
 
             $pendingq = "SELECT SUM(tamount) FROM transactions WHERE tuid = '$uid' AND tcat = 3 AND tstatus = 0";
-            $pendingquery = comboselects($pendingq, 1);
+            $pendingquery = mysqli_fetch_assoc(comboselects($pendingq, 1)['qry']);
 
             $admin = adminsite();
-            $dailybonus = datadailybonus($dataquery['uid']);
 
-            $admintarget = floatval($admin['target']);
-            $lastupdate = $admin['lastupdate'];
-            $dailyprogress = $dailybonus['activel1'];
-            $dailyrequired = $dailybonus['required'];
-            $dataprogress = $admintarget - $dailyrequired;
-            $dailystatus = $dailyrequired <= 0;
-            $percent =  (string)floatval(($dataprogress / $admintarget) * 100);
-
-
+            // sendJsonResponse(200, true, "", $dataquery);
             $tariff = [];
+            $dataquery = mysqli_fetch_assoc(comboselects($dataq, 1)['qry']);
 
-            if ($dataquery['wid']) {
-                foreach ($dataquery2 as $key) {
+            // print_r($dataquery);
+            if ($userdata['rows'] > 1) {
+                while ($key = mysqli_fetch_assoc($userdata['qry'])) {
                     $tariff[] = [
                         'wid' => $key['wid'],
                         'wcid' => $key['wcid'],
@@ -1471,6 +1492,18 @@ function data()
                     ];
                 }
             }
+
+
+
+            $dailybonus = datadailybonus($dataquery['uid']);
+
+            $admintarget = floatval($admin['target']);
+            $lastupdate = $admin['lastupdate'];
+            $dailyprogress = $dailybonus['activel1'];
+            $dailyrequired = $dailybonus['required'];
+            $dataprogress = $admintarget - $dailyrequired;
+            $dailystatus = $dailyrequired <= 0;
+            $percent =  (string)floatval(($dataprogress / $admintarget) * 100);
 
 
             $userdata = [
@@ -1523,9 +1556,9 @@ function data()
                 'welcome' => $dataquery['welcome'],
                 'spin' => $dataquery['spin'],
                 'netflix' => $dataquery['meme'],
-                'totalwithdrawal' => $totalquery['qry'][0][0] ?? 0,
-                'nowithdrawal' => count($totalquery['qry'][0]),
-                'pendingwithdrawal' => $pendingquery['qry'][0][0] ?? 0,
+                'totalwithdrawal' => $totalquery[0] ?? 0,
+                'nowithdrawal' => count($totalquery),
+                'pendingwithdrawal' => $pendingquery[0] ?? 0,
                 'target' => floatval($admin['target']),
                 'reward' => floatval($admin['reward']),
             ];
@@ -1558,8 +1591,8 @@ function data()
                 'welcome' => conv($dataquery['crate'], $dataquery['welcome'], true, true),
                 'spin' => conv($dataquery['crate'], $dataquery['spin'], true, true),
                 'netflix' => round(conv($dataquery['crate'], $dataquery['meme'], true, false), 0),
-                'totalwithdrawal' => conv($dataquery['crate'], $totalquery['qry'][0][0] ?? 0, true, true),
-                'pendingwithdrawal' => round(conv($dataquery['crate'], $pendingquery['qry'][0][0] ?? 0, true, false)),
+                'totalwithdrawal' => conv($dataquery['crate'], $totalquery ?? 0, true, true),
+                'pendingwithdrawal' => round(conv($dataquery['crate'], $pendingquery ?? 0, true, false)),
                 'target' => floatval($admin['target']),
                 'reward' => conv($dataquery['crate'], $admin['reward'], true, true),
                 'percent' => round($percent),
@@ -1614,9 +1647,9 @@ function adminsite()
     $response = [];
 
     $adminq = "SELECT * FROM site LIMIT 1";
-    $adminquery = comboselects($adminq, 1);
+    $adminquery = mysqli_fetch_assoc(comboselects($adminq, 1)['qry']);
 
-    return $adminquery['qry'][0];
+    return $adminquery;
 }
 
 function currencyupdate()
@@ -1914,10 +1947,10 @@ function others($uid = null)
     ON u.default_currency = e.cid AND e.active = true
     WHERE (u.uid = '$uid' OR u.uname = '$uid') AND u.active = true";
 
-        $dataquery = comboselects($dataq, 1);
+        $dataquery = mysqli_fetch_assoc(comboselects($dataq, 1)['qry']);
 
         if ($dataquery['res']) {
-            $dataquery = $dataquery['qry'][0];
+            $dataquery = mysqli_fetch_assoc($dataquery['qry']);
             $uid = $dataquery['uid'];
 
             $userdata = [
@@ -2050,11 +2083,12 @@ function newpasswords($sys = null)
             return sendJsonResponse(403);
         }
 
-        if (isset($query['qry'][0]['uid'])) {
+        $queryData = mysqli_fetch_assoc($query['qry']);
+        if (isset($queryData['uid'])) {
 
-            $uid = $query['qry'][0]['uid'];
-            $uname = $query['qry'][0]['uname'];
-            $uemail = $query['qry'][0]['uemail'];
+            $uid = $queryData['uid'];
+            $uname = $queryData['uname'];
+            $uemail = $queryData['uemail'];
 
             $response['res'] = false;
 
@@ -2107,7 +2141,7 @@ function giveOutRandId()
     $allUser = selects("*", "use", "", 1);
     if ($allUser['res']) {
         $response['Total Users'] = $allUser['rows'];
-        foreach ($allUser['qry'] as $data) {
+        while ($data = mysqli_fetch_assoc($allUser['qry'])) {
             if (strlen($data['randid']) < 18) {
 
                 $randId = checkrandtoken("use", generatetoken("32", false));
@@ -2140,7 +2174,7 @@ function checkrandtoken($tb, $token, $cap = false)
     $token = check($id, $tb, $token);
 
     if ($token['res']) {
-        $token = checkrandtoken($tb, generatetoken(strlen($token['qry'][0]) + 1, $cap), $cap);
+        $token = checkrandtoken($tb, generatetoken(strlen($token['qry'][$id]) + 1, $cap), $cap);
     } else {
         $token = $pretoken;
     }

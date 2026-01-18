@@ -24,8 +24,9 @@ if(isset($response['data'])){
      
     $search = selects("*","tra","tid = '$ref_id' and tstatus = 0 ",1);
     if($search['res']){
-        $amount = $search['qry'][0]['tamount'];
-        $uid = $search['qry'][0]['tuid'];
+        $searchData = mysqli_fetch_assoc($search['qry']);
+        $amount = $searchData['tamount'];
+        $uid = $searchData['tuid'];
         
         updates("bal","deposit = deposit + '$amount'","buid = '$uid'");
         updates("tra", "tstatus = '2', tdeposit = tdeposit + '$amount', ref_payment = '$flwRef'","tid = '$ref_id'");

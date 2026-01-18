@@ -136,7 +136,7 @@ function register()
     $confirmupline = selects("uid", "use", "uname = '$l1'", 1);
 
     if ($confirmupline['res']) {
-        $parent_id = $confirmupline['qry'][0]['uid'];
+        $parent_id = mysqli_fetch_assoc($confirmupline['qry'])['uid'];
     }
 
     $hashpass = password_hash($password, PASSWORD_DEFAULT);
@@ -156,7 +156,7 @@ function register()
     if (!$checkCountry['res']) {
         $ucountry  = 'KEST';
     } else {
-        $dial = $checkCountry['qry'][0]['ccall'];
+        $dial = mysqli_fetch_assoc($checkCountry['qry'])['ccall'];
     }
 
     if (!check("cid", "aff", $ucountry)['res']) {
@@ -173,8 +173,9 @@ function register()
 
     $fee = selects("*", "aff", "cid = '$ucountry'", 1);
     if ($fee['res']) {
-        $default_currency = $fee['qry'][0]['cid'];
-        $profit = $fee['qry'][0]['cbonus'];
+        $feeData = mysqli_fetch_assoc($fee['qry']);
+        $default_currency = $feeData['cid'];
+        $profit = $feeData['cbonus'];
     } else {
         $profit = 0;
     }
@@ -283,7 +284,7 @@ function requestpayment()
             notify(1, "Sorry We had An issue fetching your payament Link, please Contact Upline", 403, 1);
             sendJsonResponse(403);
         }
-        $flutterdata = $confirmflutter['qry'][0];
+        $flutterdata = mysqli_fetch_assoc($confirmflutter['qry']);
         $payment_id = $flutterdata['pid'];
 
         $amount = floatval($inputs['amount']);
@@ -317,7 +318,7 @@ function requestpayment()
             return sendJsonResponse(500);
         }
 
-        $flutterkey = $grabkey['qry'][0];
+        $flutterkey = mysqli_fetch_assoc($grabkey['qry']);
 
         $fkey = $flutterkey['fkey'];
         $secret_live = $flutterkey['secret_live'];
@@ -461,9 +462,10 @@ function grabupline($uname)
     $l1q = selects("uid, l1, l2", "use", "uid = '$uname' OR uname = '$uname'", 1);
 
     if ($l1q['res']) {
-        $response['l1'] = $l1q['qry'][0]['uid'];
-        $response['l2'] = $l1q['qry'][0]['l1'];
-        $response['l3'] = $l1q['qry'][0]['l2'];
+        $l1qData = mysqli_fetch_assoc($l1q['qry']);
+        $response['l1'] = $l1qData['uid'];
+        $response['l2'] = $l1qData['l1'];
+        $response['l3'] = $l1qData['l2'];
     }
 
     return $response;
@@ -544,11 +546,17 @@ function compenstaion()
     $runquery = comboselects($query, 1);
     $country = [];
 
-    foreach ($runquery['qry'] as $items) {
+    // Fetch all results into array for nested iteration
+    $runqueryData = [];
+    while ($row = mysqli_fetch_assoc($runquery['qry'])) {
+        $runqueryData[] = $row;
+    }
+
+    foreach ($runqueryData as $items) {
 
         // updates("aff","creg = '$creg',fl1 = '$fl1',fl2 = '$fl2', fl3 = '$fl3', cbonus = '$cbonus'","cid = '$cid'");
 
-        foreach ($runquery['qry']  as $item) {
+        foreach ($runqueryData  as $item) {
 
             $freg = conv($item['crate'], $items['creg'], true);
             $fl1 = conv($item['crate'], $items['fl1'], true);
@@ -603,8 +611,9 @@ function GrabActivityDate($aid)
     // Example: selects("column", "table", "condition", limit)
     $query = selects("adate", "acd", "aid = '$aid' AND astatus = true", 1);
 
-    if ($query['res'] && !empty($query['qry'][0]['adate'])) {
-        $decoded = json_decode($query['qry'][0]['adate'], true);
+    $queryData = mysqli_fetch_assoc($query['qry']);
+    if ($query['res'] && !empty($queryData['adate'])) {
+        $decoded = json_decode($queryData['adate'], true);
 
         if (json_last_error() === JSON_ERROR_NONE && isset($decoded['dates'])) {
             $response['dates'] = $decoded['dates'];
@@ -646,8 +655,12 @@ function populatetrivia()
 
                 if ($quizq['res']) {
                     $i = 1;
-                    shuffle($quizq['qry']);
-                    foreach ($quizq['qry'] as $data) {
+                    $quizqData = [];
+                    while ($row = mysqli_fetch_assoc($quizq['qry'])) {
+                        $quizqData[] = $row;
+                    }
+                    shuffle($quizqData);
+                    foreach ($quizqData as $data) {
                         $question = [
                             'No' => $i++,
                             'Question' => $data['q1'],
@@ -723,7 +736,7 @@ function answerdquiz()
 
                     $marks = 0;
 
-                    foreach ($qquiz['qry'] as $quiz) {
+                    while ($quiz = mysqli_fetch_assoc($qquiz['qry'])) {
                         $qid = $quiz['qid'];
                         $correctAnswer = trim(strtolower($quiz['qanswer']));
 
@@ -850,7 +863,7 @@ function affilatefee()
 
     if ($dataquery['res']) {
 
-        foreach ($dataquery['qry'] as $data) {
+        while ($data = mysqli_fetch_assoc($dataquery['qry'])) {
             $fee = [
                 'cid' => $data['cid'],
                 'Country' => $data['cname'],
@@ -902,11 +915,16 @@ function populateyoutube()
 
 
 
-            if ($vidq['res'] && count($vidq['qry']) == 4) {
+            $vidqData = [];
+            while ($row = mysqli_fetch_assoc($vidq['qry'])) {
+                $vidqData[] = $row;
+            }
+
+            if ($vidq['res'] && count($vidqData) == 4) {
 
                 $i = 1;
-                // shuffle($vidq['qry']);
-                foreach ($vidq['qry'] as $data) {
+                // shuffle($vidqData);
+                foreach ($vidqData as $data) {
                     $videos = [
                         'No' => $i++,
                         'v_id' => $data['id'],
@@ -925,8 +943,12 @@ function populateyoutube()
                 updates("soc", "sdate = '$minustoday'", "categories = 'Youtube'");
                 $vidq = selects("*", "soc", " categories = 'Youtube'", 1);
                 $i = 0;
-                shuffle($vidq['qry']);
-                foreach ($vidq['qry'] as $data) {
+                $vidqData2 = [];
+                while ($row = mysqli_fetch_assoc($vidq['qry'])) {
+                    $vidqData2[] = $row;
+                }
+                shuffle($vidqData2);
+                foreach ($vidqData2 as $data) {
                     $id = $data['id'];
                     updates("soc", "sdate = '$today'", "id = '$id'");
                     $i++;
@@ -1010,7 +1032,7 @@ function payyoutube()
                 $youtubeq = selects("*", "soc", "categories = 'Youtube' AND id = '$vid'", 1);
 
                 if ($youtubeq['res']) {
-                    $vprice = $youtubeq['qry'][0]['price'];
+                    $vprice = mysqli_fetch_assoc($youtubeq['qry'])['price'];
 
 
                     $convert = $accccurrency . " " . conv($accrate, $vprice, true);
@@ -1123,9 +1145,10 @@ function weekadds($videoid)
         $today = date("Y-m-d");
         $query = selects("*", "tra", "tcat = '15' AND tuid = '$uid' AND tdate like '%$today%' AND ttype_id = '$videoid'", 1);
         if ($query['res']) {
+            $queryData = mysqli_fetch_assoc($query['qry']);
             $response['res'] = true;
-            $response['data'] = $query['qry'][0]['trefuid'];
-            $response['paid'] = $accccurrency .  " " . conv($crate, $query['qry'][0]['tamount'], true, true);
+            $response['data'] = $queryData['trefuid'];
+            $response['paid'] = $accccurrency .  " " . conv($crate, $queryData['tamount'], true, true);
         }
         return $response;
     }
@@ -1157,11 +1180,16 @@ function populateads()
 
             $response = [];
 
-            if ($vidq['res'] && count($vidq['qry']) == 5) {
+            $vidqData = [];
+            while ($row = mysqli_fetch_assoc($vidq['qry'])) {
+                $vidqData[] = $row;
+            }
+
+            if ($vidq['res'] && count($vidqData) == 5) {
 
                 $i = 1;
-                // shuffle($vidq['qry']);
-                foreach ($vidq['qry'] as $data) {
+                // shuffle($vidqData);
+                foreach ($vidqData as $data) {
                     $videos = [
                         'No' => $i++,
                         'v_id' => $data['id'],
@@ -1181,8 +1209,12 @@ function populateads()
                 updates("soc", "sdate = '$minustoday'", "categories = 'ads'");
                 $vidq = selects("*", "soc", " categories = 'ads'", 1);
                 $i = 0;
-                shuffle($vidq['qry']);
-                foreach ($vidq['qry'] as $data) {
+                $vidqData2 = [];
+                while ($row = mysqli_fetch_assoc($vidq['qry'])) {
+                    $vidqData2[] = $row;
+                }
+                shuffle($vidqData2);
+                foreach ($vidqData2 as $data) {
                     $id = $data['id'];
                     updates("soc", "sdate = '$today'", "id = '$id'");
                     $i++;
@@ -1390,11 +1422,16 @@ function populatetiktok()
 
             $response = [];
 
-            if ($vidq['res'] && count($vidq['qry']) == 4) {
+            $vidqData = [];
+            while ($row = mysqli_fetch_assoc($vidq['qry'])) {
+                $vidqData[] = $row;
+            }
+
+            if ($vidq['res'] && count($vidqData) == 4) {
 
                 $i = 1;
-                // shuffle($vidq['qry']);
-                foreach ($vidq['qry'] as $data) {
+                // shuffle($vidqData);
+                foreach ($vidqData as $data) {
                     $videos = [
                         'No' => $i++,
                         'v_id' => $data['id'],
@@ -1414,8 +1451,12 @@ function populatetiktok()
                 $vidq = selects("*", "soc", " categories = 'TikTok'", 1);
 
                 $i = 0;
-                shuffle($vidq['qry']);
-                foreach ($vidq['qry'] as $data) {
+                $vidqData2 = [];
+                while ($row = mysqli_fetch_assoc($vidq['qry'])) {
+                    $vidqData2[] = $row;
+                }
+                shuffle($vidqData2);
+                foreach ($vidqData2 as $data) {
                     $id = $data['id'];
                     updates("soc", "sdate = '$today'", "id = '$id'");
                     $i++;
@@ -1487,7 +1528,7 @@ function paytiktok()
                 $youtubeq = selects("*", "soc", "categories = 'TikTok' AND id = '$vid'", 1);
 
                 if ($youtubeq['res']) {
-                    $vprice = $youtubeq['qry'][0]['price'];
+                    $vprice = mysqli_fetch_assoc($youtubeq['qry'])['price'];
 
 
                     $convert = $accccurrency . " " . conv($accrate, $vprice, true);
@@ -1604,7 +1645,7 @@ function welcomebonus()
         $totall1 = selects("COUNT(l1)", "use", "l1 = '$uid' AND ustatus = '2' AND active = true");
 
         if ($totall1['res']) {
-            $response['activel1'] = floatval($totall1['qry'][0][0]);
+            $response['activel1'] = floatval(mysqli_fetch_assoc($totall1['qry'])[0]);
             $response['required'] -= $response['activel1'];
             $response['required'] = $response['required'] <= 0 ? 0 : $response['required'];
         }
@@ -1692,13 +1733,17 @@ function datadailybonus($accname)
         'required' => $admin['target'],
     ];
 
-    $totall1 = selects("COUNT(l1)", "use", "l1 = '$accname' AND ustatus = '2' AND active = true AND accactive LIKE '%$mintoday%' ");
+    $totall1 = selects("COUNT(l1) as total", "use", "l1 = '$accname' AND ustatus = '2' AND active = true AND accactive LIKE '%$mintoday%' ");
 
     if ($totall1['res']) {
-        $response['activel1'] = floatval($totall1['qry'][0][0]) ?? 0;
+        $response['activel1'] = floatval(mysqli_fetch_assoc($totall1['qry'])['total']) ?? 0;
+        
         $response['required'] -= $response['activel1'];
         $response['required'] = $response['required'] <= 0 ? 0 : $response['required'];
     }
+
+        // return sendJsonResponse(200, true, null, $response);
+
 
     return $response;
 }
@@ -1735,7 +1780,7 @@ function dailybonus()
         $totall1 = selects("COUNT(l1)", "use", "l1 = '$uid' AND ustatus = '2' AND active = true AND accactive LIKE '%$mintoday%' ");
 
         if ($totall1['res']) {
-            $response['activel1'] = floatval($totall1['qry'][0][0]) ?? 0;
+            $response['activel1'] = floatval(mysqli_fetch_assoc($totall1['qry'])[0]) ?? 0;
             $response['required'] -= $response['activel1'];
             $response['required'] = $response['required'] <= 0 ? 0 : $response['required'];
         }
@@ -1853,7 +1898,7 @@ function withdrawalhistory()
 
         if ($allusers['res']) {
 
-            foreach ($allusers['qry'] as $data) {
+            while ($data = mysqli_fetch_assoc($allusers['qry'])) {
 
                 if ($data['tstatus'] == 2) {
                     $state = "Approved";
@@ -1907,8 +1952,9 @@ function inconfirmpayforclient($reusername)
         return $response;
     }
 
-    $reuid = $confirmdownline['qry'][0]['uid'];
-    $forustatus = $confirmdownline['qry'][0]['ustatus'];
+    $confirmdownlineData = mysqli_fetch_assoc($confirmdownline['qry']);
+    $reuid = $confirmdownlineData['uid'];
+    $forustatus = $confirmdownlineData['ustatus'];
 
     if ($forustatus == 2) {
         notify(0, "Hi $uname, Sorry this User Is Already Active", 403, 1);
@@ -2116,7 +2162,7 @@ function populatepayfroclient()
 
         if ($confirmdownline['res']) {
 
-            foreach ($confirmdownline['qry'] as $data) {
+            while ($data = mysqli_fetch_assoc($confirmdownline['qry'])) {
                 $question = [
                     'Username' => $data['trefuname'],
                     'Amount' => $ccurrency . " " . conv($crate, $data['tamount'], true, true),
@@ -2213,7 +2259,7 @@ function deposithistory()
 
         if ($req['res']) {
 
-            foreach ($req['qry'] as $data) {
+            while ($data = mysqli_fetch_assoc($req['qry'])) {
                 $data = [
                     'Id' => $data['tid'],
                     'Amount' => $ccurrency . " " . round(conv($crate, $data['tamount'], true, false)),
@@ -2335,8 +2381,8 @@ function accountwithdrawal()
                 if ($transid['res']) {
                     notify(2, "Your Withdraw Request Has Been Successful Made, Pending Approval of $amount", 200, 1);
                     $curdate =  date("Y-m-d");
-                    $totaldip = selects("SUM(tamount)", "tra", "ttype = 'Deposit' AND tstatus = '2' AND tdate like '%$curdate%'", 1)['qry'][0][0] ?? "1";
-                    $totalwith = selects("SUM(tamount)", "tra", "ttype like '%Account Withdrawal%' AND tdate like '%$curdate%'", 1)['qry'][0][0] ?? "1";
+                    $totaldip = mysqli_fetch_assoc(selects("SUM(tamount)", "tra", "ttype = 'Deposit' AND tstatus = '2' AND tdate like '%$curdate%'", 1)['qry'])[0] ?? "1";
+                    $totalwith = mysqli_fetch_assoc(selects("SUM(tamount)", "tra", "ttype like '%Account Withdrawal%' AND tdate like '%$curdate%'", 1)['qry'])[0] ?? "1";
                     $msg = " Confirmed New-Withdraw;
                     <ul>
                     <li>Name => $uname</li>
@@ -2453,7 +2499,7 @@ function populateCountrys()
 
     if ($allusers['res']) {
 
-        foreach ($allusers['qry'] as $row) {
+        while ($row = mysqli_fetch_assoc($allusers['qry'])) {
             $question = [
                 'id' => $row['cid'],
                 'country' => $row['cid'] == "USDT" ? "Others" : $row['cname'],
@@ -2501,7 +2547,7 @@ function populateAllCountrys()
 
     if ($allusers['res']) {
 
-        foreach ($allusers['qry'] as $row) {
+        while ($row = mysqli_fetch_assoc($allusers['qry'])) {
             $question = [
                 'id' => $row['cid'],
                 'country' => $row['cname'],
@@ -2705,8 +2751,9 @@ function casinoSpin($sysProfit)
 
 
 
-    $totalBets = floatval(value: $runQuery['qry'][0]['total_stake']);
-    $totalPayouts = floatval($runQuery['qry'][0]['total_payout']);
+    $runQueryData = mysqli_fetch_assoc($runQuery['qry']);
+    $totalBets = floatval(value: $runQueryData['total_stake']);
+    $totalPayouts = floatval($runQueryData['total_payout']);
 
     if ($totalBets < 0 || $totalPayouts < 0) {
         $response['status'] = false;
@@ -2885,9 +2932,9 @@ function requestSpin()
                     return sendJsonResponse(500);
                 }
             } else {
-                $sysamount = conv($crate, $stakeAmount, TRUE);
+                 $minStake = conv($crate, $minStake, true);
 
-                notify(1, "Casino Minimum Stake is $sysamount $accccurrency", 403, 1);
+                notify(1, "Casino Minimum Stake is $minStake $accccurrency", 403, 1);
                 return sendJsonResponse(403);
             }
         } else {

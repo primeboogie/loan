@@ -1,0 +1,228 @@
+[02-Jan-2026 21:36:56 Africa/Nairobi] PHP Warning:  Undefined variable $_SESSION in /opt/lampp/htdocs/newqash/admin/share.php on line 223
+[02-Jan-2026 21:36:56 Africa/Nairobi] PHP Warning:  Trying to access array offset on value of type null in /opt/lampp/htdocs/newqash/admin/share.php on line 223
+[02-Jan-2026 21:36:56 Africa/Nairobi] PHP Warning:  Trying to access array offset on value of type null in /opt/lampp/htdocs/newqash/admin/share.php on line 223
+[02-Jan-2026 21:36:56 Africa/Nairobi] PHP Warning:  Trying to access array offset on value of type null in /opt/lampp/htdocs/newqash/admin/share.php on line 224
+[02-Jan-2026 21:36:56 Africa/Nairobi] PHP Warning:  Undefined variable $_SESSION in /opt/lampp/htdocs/newqash/admin/share.php on line 225
+[02-Jan-2026 21:36:56 Africa/Nairobi] PHP Warning:  Trying to access array offset on value of type null in /opt/lampp/htdocs/newqash/admin/share.php on line 225
+[02-Jan-2026 21:37:52 Africa/Nairobi] PHP Warning:  Undefined variable $allusers in /opt/lampp/htdocs/newqash/config/func.php on line 708
+[02-Jan-2026 22:18:16 Africa/Nairobi] PHP Warning:  Cannot modify header information - headers already sent by (output started at /opt/lampp/htdocs/newqash/admin/share.php:310) in /opt/lampp/htdocs/newqash/config/func.php on line 126
+[02-Jan-2026 22:57:45 Africa/Nairobi] PHP Fatal error:  Allowed memory size of 536870912 bytes exhausted (tried to allocate 20480 bytes) in /opt/lampp/htdocs/newqash/config/func.php on line 707
+[02-Jan-2026 23:19:20 Africa/Nairobi] PHP Warning:  Undefined variable $array in /opt/lampp/htdocs/newqash/config/func.php on line 850
+[02-Jan-2026 23:19:20 Africa/Nairobi] PHP Warning:  Trying to access array offset on value of type null in /opt/lampp/htdocs/newqash/admin/share.php on line 245
+[03-Jan-2026 12:12:17 Africa/Nairobi] PHP Warning:  Array to string conversion in /opt/lampp/htdocs/newqash/admin/share.php on line 395
+[03-Jan-2026 12:12:17 Africa/Nairobi] PHP Warning:  Undefined variable $Array in /opt/lampp/htdocs/newqash/admin/share.php on line 395
+[03-Jan-2026 12:13:42 Africa/Nairobi] PHP Warning:  Undefined variable $startMemory in /opt/lampp/htdocs/newqash/admin/share.php on line 395
+[03-Jan-2026 13:07:42 Africa/Nairobi] PHP Fatal error:  Uncaught Error: Cannot use object of type mysqli_result as array in /opt/lampp/htdocs/newqash/config/func.php:1524
+Stack trace:
+#0 /opt/lampp/htdocs/newqash/config/func.php(1122): data()
+#1 /opt/lampp/htdocs/newqash/config/func.php(161): login()
+#2 /opt/lampp/htdocs/newqash/modules/index.php(29): fne('login')
+#3 /opt/lampp/htdocs/newqash/index.php(60): unauthorized('login')
+#4 {main}
+  thrown in /opt/lampp/htdocs/newqash/config/func.php on line 1524
+[03-Jan-2026 13:11:40 Africa/Nairobi] PHP Warning:  Undefined array key "res" in /opt/lampp/htdocs/newqash/config/func.php on line 1521
+[03-Jan-2026 13:12:45 Africa/Nairobi] PHP Warning:  Undefined array key 0 in /opt/lampp/htdocs/newqash/config/func.php on line 1523
+[03-Jan-2026 13:12:45 Africa/Nairobi] PHP Warning:  Undefined array key "qry" in /opt/lampp/htdocs/newqash/config/func.php on line 1701
+[03-Jan-2026 13:12:45 Africa/Nairobi] PHP Warning:  Trying to access array offset on value of type null in /opt/lampp/htdocs/newqash/config/func.php on line 1701
+[03-Jan-2026 13:12:45 Africa/Nairobi] PHP Warning:  Trying to access array offset on value of type null in /opt/lampp/htdocs/newqash/config/func.php on line 1532
+[03-Jan-2026 13:12:45 Africa/Nairobi] PHP Warning:  Undefined array key "qry" in /opt/lampp/htdocs/newqash/config/func.php on line 1701
+[03-Jan-2026 13:12:45 Africa/Nairobi] PHP Warning:  Trying to access array offset on value of type null in /opt/lampp/htdocs/newqash/config/func.php on line 1701
+[03-Jan-2026 13:12:45 Africa/Nairobi] PHP Warning:  Trying to access array offset on value of type null in /opt/lampp/htdocs/newqash/modules/networking.php on line 1692
+[03-Jan-2026 13:12:45 Africa/Nairobi] PHP Warning:  Trying to access array offset on value of type null in /opt/lampp/htdocs/newqash/config/func.php on line 1534
+[03-Jan-2026 13:12:45 Africa/Nairobi] PHP Warning:  Trying to access array offset on value of type null in /opt/lampp/htdocs/newqash/config/func.php on line 1535
+[03-Jan-2026 13:12:45 Africa/Nairobi] PHP Fatal error:  Uncaught DivisionByZeroError: Division by zero in /opt/lampp/htdocs/newqash/config/func.php:1540
+Stack trace:
+#0 /opt/lampp/htdocs/newqash/config/func.php(1097): data()
+#1 /opt/lampp/htdocs/newqash/config/func.php(161): login()
+#2 /opt/lampp/htdocs/newqash/modules/index.php(29): fne('login')
+#3 /opt/lampp/htdocs/newqash/index.php(60): unauthorized('login')
+#4 {main}
+  thrown in /opt/lampp/htdocs/newqash/config/func.php on line 1540
+[03-Jan-2026 13:13:38 Africa/Nairobi] PHP Warning:  Undefined array key "qry" in /opt/lampp/htdocs/newqash/config/func.php on line 1701
+[03-Jan-2026 13:13:38 Africa/Nairobi] PHP Warning:  Trying to access array offset on value of type null in /opt/lampp/htdocs/newqash/config/func.php on line 1701
+[03-Jan-2026 13:13:38 Africa/Nairobi] PHP Fatal error:  Uncaught TypeError: Cannot access offset of type string on string in /opt/lampp/htdocs/newqash/config/func.php:1532
+Stack trace:
+#0 /opt/lampp/htdocs/newqash/config/func.php(1097): data()
+#1 /opt/lampp/htdocs/newqash/config/func.php(161): login()
+#2 /opt/lampp/htdocs/newqash/modules/index.php(29): fne('login')
+#3 /opt/lampp/htdocs/newqash/index.php(60): unauthorized('login')
+#4 {main}
+  thrown in /opt/lampp/htdocs/newqash/config/func.php on line 1532
+[03-Jan-2026 13:14:31 Africa/Nairobi] PHP Fatal error:  Uncaught TypeError: Cannot access offset of type string on string in /opt/lampp/htdocs/newqash/config/func.php:1532
+Stack trace:
+#0 /opt/lampp/htdocs/newqash/config/func.php(1097): data()
+#1 /opt/lampp/htdocs/newqash/config/func.php(161): login()
+#2 /opt/lampp/htdocs/newqash/modules/index.php(29): fne('login')
+#3 /opt/lampp/htdocs/newqash/index.php(60): unauthorized('login')
+#4 {main}
+  thrown in /opt/lampp/htdocs/newqash/config/func.php on line 1532
+[03-Jan-2026 13:15:38 Africa/Nairobi] PHP Warning:  Undefined array key 0 in /opt/lampp/htdocs/newqash/config/func.php on line 1523
+[03-Jan-2026 13:15:38 Africa/Nairobi] PHP Warning:  Trying to access array offset on value of type null in /opt/lampp/htdocs/newqash/config/func.php on line 1532
+[03-Jan-2026 13:15:38 Africa/Nairobi] PHP Fatal error:  Uncaught TypeError: Cannot access offset of type string on string in /opt/lampp/htdocs/newqash/modules/networking.php:1692
+Stack trace:
+#0 /opt/lampp/htdocs/newqash/config/func.php(1532): datadailybonus(NULL)
+#1 /opt/lampp/htdocs/newqash/config/func.php(1097): data()
+#2 /opt/lampp/htdocs/newqash/config/func.php(161): login()
+#3 /opt/lampp/htdocs/newqash/modules/index.php(29): fne('login')
+#4 /opt/lampp/htdocs/newqash/index.php(60): unauthorized('login')
+#5 {main}
+  thrown in /opt/lampp/htdocs/newqash/modules/networking.php on line 1692
+[03-Jan-2026 13:16:20 Africa/Nairobi] PHP Fatal error:  Uncaught TypeError: Cannot access offset of type string on string in /opt/lampp/htdocs/newqash/modules/networking.php:1692
+Stack trace:
+#0 /opt/lampp/htdocs/newqash/config/func.php(1531): datadailybonus('96BCB75785')
+#1 /opt/lampp/htdocs/newqash/config/func.php(1097): data()
+#2 /opt/lampp/htdocs/newqash/config/func.php(161): login()
+#3 /opt/lampp/htdocs/newqash/modules/index.php(29): fne('login')
+#4 /opt/lampp/htdocs/newqash/index.php(60): unauthorized('login')
+#5 {main}
+  thrown in /opt/lampp/htdocs/newqash/modules/networking.php on line 1692
+[03-Jan-2026 13:16:55 Africa/Nairobi] PHP Fatal error:  Uncaught TypeError: Cannot access offset of type string on string in /opt/lampp/htdocs/newqash/config/func.php:1547
+Stack trace:
+#0 /opt/lampp/htdocs/newqash/config/func.php(1097): data()
+#1 /opt/lampp/htdocs/newqash/config/func.php(161): login()
+#2 /opt/lampp/htdocs/newqash/modules/index.php(29): fne('login')
+#3 /opt/lampp/htdocs/newqash/index.php(60): unauthorized('login')
+#4 {main}
+  thrown in /opt/lampp/htdocs/newqash/config/func.php on line 1547
+[03-Jan-2026 13:18:36 Africa/Nairobi] PHP Fatal error:  Uncaught TypeError: Cannot access offset of type string on string in /opt/lampp/htdocs/newqash/config/func.php:1548
+Stack trace:
+#0 /opt/lampp/htdocs/newqash/config/func.php(1097): data()
+#1 /opt/lampp/htdocs/newqash/config/func.php(161): login()
+#2 /opt/lampp/htdocs/newqash/modules/index.php(29): fne('login')
+#3 /opt/lampp/htdocs/newqash/index.php(60): unauthorized('login')
+#4 {main}
+  thrown in /opt/lampp/htdocs/newqash/config/func.php on line 1548
+[03-Jan-2026 13:19:44 Africa/Nairobi] PHP Warning:  Undefined variable $dataquery2 in /opt/lampp/htdocs/newqash/config/func.php on line 1543
+[03-Jan-2026 13:19:45 Africa/Nairobi] PHP Fatal error:  Allowed memory size of 536870912 bytes exhausted (tried to allocate 20480 bytes) in /opt/lampp/htdocs/newqash/config/func.php on line 1548
+[03-Jan-2026 13:20:30 Africa/Nairobi] PHP Fatal error:  Allowed memory size of 536870912 bytes exhausted (tried to allocate 20480 bytes) in /opt/lampp/htdocs/newqash/config/func.php on line 1547
+[03-Jan-2026 13:25:12 Africa/Nairobi] PHP Fatal error:  Allowed memory size of 536870912 bytes exhausted (tried to allocate 4096 bytes) in /opt/lampp/htdocs/newqash/config/func.php on line 1493
+[03-Jan-2026 13:25:46 Africa/Nairobi] PHP Warning:  Undefined array key "query" in /opt/lampp/htdocs/newqash/config/func.php on line 1048
+[03-Jan-2026 13:25:46 Africa/Nairobi] PHP Warning:  Trying to access array offset on value of type null in /opt/lampp/htdocs/newqash/config/func.php on line 1048
+[03-Jan-2026 13:25:46 Africa/Nairobi] PHP Warning:  Undefined array key "query" in /opt/lampp/htdocs/newqash/config/func.php on line 1049
+[03-Jan-2026 13:25:46 Africa/Nairobi] PHP Warning:  Trying to access array offset on value of type null in /opt/lampp/htdocs/newqash/config/func.php on line 1049
+[03-Jan-2026 13:25:46 Africa/Nairobi] PHP Warning:  Undefined array key "query" in /opt/lampp/htdocs/newqash/config/func.php on line 1050
+[03-Jan-2026 13:25:46 Africa/Nairobi] PHP Warning:  Trying to access array offset on value of type null in /opt/lampp/htdocs/newqash/config/func.php on line 1050
+[03-Jan-2026 13:28:02 Africa/Nairobi] PHP Warning:  Undefined array key "query" in /opt/lampp/htdocs/newqash/config/func.php on line 1048
+[03-Jan-2026 13:28:02 Africa/Nairobi] PHP Warning:  Trying to access array offset on value of type null in /opt/lampp/htdocs/newqash/config/func.php on line 1048
+[03-Jan-2026 13:28:02 Africa/Nairobi] PHP Warning:  Undefined array key "query" in /opt/lampp/htdocs/newqash/config/func.php on line 1049
+[03-Jan-2026 13:28:02 Africa/Nairobi] PHP Warning:  Trying to access array offset on value of type null in /opt/lampp/htdocs/newqash/config/func.php on line 1049
+[03-Jan-2026 13:28:02 Africa/Nairobi] PHP Warning:  Undefined array key "query" in /opt/lampp/htdocs/newqash/config/func.php on line 1050
+[03-Jan-2026 13:28:02 Africa/Nairobi] PHP Warning:  Trying to access array offset on value of type null in /opt/lampp/htdocs/newqash/config/func.php on line 1050
+[03-Jan-2026 13:29:14 Africa/Nairobi] PHP Fatal error:  Allowed memory size of 536870912 bytes exhausted (tried to allocate 4096 bytes) in /opt/lampp/htdocs/newqash/config/func.php on line 1494
+[03-Jan-2026 13:33:36 Africa/Nairobi] PHP Fatal error:  Allowed memory size of 536870912 bytes exhausted (tried to allocate 4096 bytes) in /opt/lampp/htdocs/newqash/config/func.php on line 1493
+[03-Jan-2026 13:34:44 Africa/Nairobi] PHP Fatal error:  Allowed memory size of 536870912 bytes exhausted (tried to allocate 4096 bytes) in /opt/lampp/htdocs/newqash/config/func.php on line 1493
+[03-Jan-2026 18:36:34 Africa/Nairobi] PHP Warning:  Undefined array key "qry" in /opt/lampp/htdocs/newqash/config/func.php on line 1554
+[03-Jan-2026 18:36:34 Africa/Nairobi] PHP Warning:  Trying to access array offset on value of type null in /opt/lampp/htdocs/newqash/config/func.php on line 1554
+[03-Jan-2026 18:36:34 Africa/Nairobi] PHP Fatal error:  Uncaught TypeError: count(): Argument #1 ($value) must be of type Countable|array, null given in /opt/lampp/htdocs/newqash/config/func.php:1554
+Stack trace:
+#0 /opt/lampp/htdocs/newqash/config/func.php(1067): data()
+#1 /opt/lampp/htdocs/newqash/config/func.php(107): login()
+#2 /opt/lampp/htdocs/newqash/modules/index.php(29): fne('login')
+#3 /opt/lampp/htdocs/newqash/index.php(61): unauthorized('login')
+#4 {main}
+  thrown in /opt/lampp/htdocs/newqash/config/func.php on line 1554
+[03-Jan-2026 18:38:24 Africa/Nairobi] PHP Fatal error:  Allowed memory size of 536870912 bytes exhausted (tried to allocate 4096 bytes) in /opt/lampp/htdocs/newqash/config/func.php on line 1494
+[03-Jan-2026 18:46:05 Africa/Nairobi] PHP Fatal error:  Allowed memory size of 536870912 bytes exhausted (tried to allocate 4096 bytes) in /opt/lampp/htdocs/newqash/config/func.php on line 1495
+[03-Jan-2026 18:46:23 Africa/Nairobi] PHP Fatal error:  Allowed memory size of 536870912 bytes exhausted (tried to allocate 20480 bytes) in /opt/lampp/htdocs/newqash/config/func.php on line 1495
+[03-Jan-2026 18:46:57 Africa/Nairobi] PHP Fatal error:  Allowed memory size of 536870912 bytes exhausted (tried to allocate 20480 bytes) in /opt/lampp/htdocs/newqash/config/func.php on line 1495
+[03-Jan-2026 18:47:35 Africa/Nairobi] PHP Fatal error:  Allowed memory size of 536870912 bytes exhausted (tried to allocate 20480 bytes) in /opt/lampp/htdocs/newqash/config/func.php on line 1494
+[03-Jan-2026 18:50:47 Africa/Nairobi] PHP Warning:  Undefined array key "uid" in /opt/lampp/htdocs/newqash/config/func.php on line 1478
+[03-Jan-2026 18:51:06 Africa/Nairobi] PHP Warning:  Undefined variable $admintarget in /opt/lampp/htdocs/newqash/config/func.php on line 1484
+[03-Jan-2026 18:51:06 Africa/Nairobi] PHP Warning:  Undefined variable $dailyrequired in /opt/lampp/htdocs/newqash/config/func.php on line 1484
+[03-Jan-2026 18:51:06 Africa/Nairobi] PHP Warning:  Undefined variable $dailyrequired in /opt/lampp/htdocs/newqash/config/func.php on line 1485
+[03-Jan-2026 18:51:06 Africa/Nairobi] PHP Warning:  Undefined variable $admintarget in /opt/lampp/htdocs/newqash/config/func.php on line 1486
+[03-Jan-2026 18:51:06 Africa/Nairobi] PHP Fatal error:  Uncaught DivisionByZeroError: Division by zero in /opt/lampp/htdocs/newqash/config/func.php:1486
+Stack trace:
+#0 /opt/lampp/htdocs/newqash/config/func.php(1043): data()
+#1 /opt/lampp/htdocs/newqash/config/func.php(107): login()
+#2 /opt/lampp/htdocs/newqash/modules/index.php(29): fne('login')
+#3 /opt/lampp/htdocs/newqash/index.php(61): unauthorized('login')
+#4 {main}
+  thrown in /opt/lampp/htdocs/newqash/config/func.php on line 1486
+[03-Jan-2026 18:51:34 Africa/Nairobi] PHP Warning:  Undefined array key "wid" in /opt/lampp/htdocs/newqash/config/func.php on line 1493
+[03-Jan-2026 18:51:58 Africa/Nairobi] PHP Warning:  Undefined array key "qry" in /opt/lampp/htdocs/newqash/config/func.php on line 1494
+[03-Jan-2026 18:51:58 Africa/Nairobi] PHP Fatal error:  Uncaught TypeError: mysqli_fetch_assoc(): Argument #1 ($result) must be of type mysqli_result, null given in /opt/lampp/htdocs/newqash/config/func.php:1494
+Stack trace:
+#0 /opt/lampp/htdocs/newqash/config/func.php(1494): mysqli_fetch_assoc(NULL)
+#1 /opt/lampp/htdocs/newqash/config/func.php(1043): data()
+#2 /opt/lampp/htdocs/newqash/config/func.php(107): login()
+#3 /opt/lampp/htdocs/newqash/modules/index.php(29): fne('login')
+#4 /opt/lampp/htdocs/newqash/index.php(61): unauthorized('login')
+#5 {main}
+  thrown in /opt/lampp/htdocs/newqash/config/func.php on line 1494
+[03-Jan-2026 18:52:31 Africa/Nairobi] PHP Warning:  Undefined array key "wid" in /opt/lampp/htdocs/newqash/config/func.php on line 1493
+[03-Jan-2026 18:57:19 Africa/Nairobi] PHP Warning:  Undefined array key "crate" in /opt/lampp/htdocs/newqash/config/func.php on line 1486
+[03-Jan-2026 18:57:19 Africa/Nairobi] PHP Warning:  Undefined array key "crate" in /opt/lampp/htdocs/newqash/config/func.php on line 1487
+[03-Jan-2026 18:57:19 Africa/Nairobi] PHP Warning:  Undefined array key "crate" in /opt/lampp/htdocs/newqash/config/func.php on line 1488
+[03-Jan-2026 18:57:19 Africa/Nairobi] PHP Warning:  Undefined array key "crate" in /opt/lampp/htdocs/newqash/config/func.php on line 1486
+[03-Jan-2026 18:57:19 Africa/Nairobi] PHP Warning:  Undefined array key "crate" in /opt/lampp/htdocs/newqash/config/func.php on line 1487
+[03-Jan-2026 18:57:19 Africa/Nairobi] PHP Warning:  Undefined array key "crate" in /opt/lampp/htdocs/newqash/config/func.php on line 1488
+[03-Jan-2026 19:00:04 Africa/Nairobi] PHP Warning:  Undefined array key "rows" in /opt/lampp/htdocs/newqash/config/func.php on line 1483
+[03-Jan-2026 19:09:45 Africa/Nairobi] PHP Fatal error:  Uncaught Error: Cannot use object of type mysqli_result as array in /opt/lampp/htdocs/newqash/config/func.php:1109
+Stack trace:
+#0 /opt/lampp/htdocs/newqash/modules/index.php(38): auths()
+#1 /opt/lampp/htdocs/newqash/modules/index.php(32): authorized('')
+#2 /opt/lampp/htdocs/newqash/index.php(61): unauthorized('')
+#3 {main}
+  thrown in /opt/lampp/htdocs/newqash/config/func.php on line 1109
+[03-Jan-2026 19:10:06 Africa/Nairobi] PHP Fatal error:  Uncaught Error: Cannot use object of type mysqli_result as array in /opt/lampp/htdocs/newqash/config/func.php:1109
+Stack trace:
+#0 /opt/lampp/htdocs/newqash/modules/index.php(38): auths()
+#1 /opt/lampp/htdocs/newqash/modules/index.php(32): authorized('withdrawalhisto...')
+#2 /opt/lampp/htdocs/newqash/index.php(61): unauthorized('withdrawalhisto...')
+#3 {main}
+  thrown in /opt/lampp/htdocs/newqash/config/func.php on line 1109
+[03-Jan-2026 19:11:05 Africa/Nairobi] PHP Fatal error:  Uncaught Error: Cannot use object of type mysqli_result as array in /opt/lampp/htdocs/newqash/config/func.php:1109
+Stack trace:
+#0 /opt/lampp/htdocs/newqash/modules/index.php(38): auths()
+#1 /opt/lampp/htdocs/newqash/modules/index.php(32): authorized('withdrawalhisto...')
+#2 /opt/lampp/htdocs/newqash/index.php(61): unauthorized('withdrawalhisto...')
+#3 {main}
+  thrown in /opt/lampp/htdocs/newqash/config/func.php on line 1109
+[03-Jan-2026 19:11:44 Africa/Nairobi] PHP Fatal error:  Uncaught Error: Cannot use object of type mysqli_result as array in /opt/lampp/htdocs/newqash/config/func.php:1109
+Stack trace:
+#0 /opt/lampp/htdocs/newqash/modules/index.php(38): auths()
+#1 /opt/lampp/htdocs/newqash/modules/index.php(32): authorized('withdrawalhisto...')
+#2 /opt/lampp/htdocs/newqash/index.php(61): unauthorized('withdrawalhisto...')
+#3 {main}
+  thrown in /opt/lampp/htdocs/newqash/config/func.php on line 1109
+[03-Jan-2026 19:12:11 Africa/Nairobi] PHP Fatal error:  Uncaught Error: Cannot use object of type mysqli_result as array in /opt/lampp/htdocs/newqash/config/func.php:1109
+Stack trace:
+#0 /opt/lampp/htdocs/newqash/modules/index.php(38): auths()
+#1 /opt/lampp/htdocs/newqash/modules/index.php(32): authorized('withdrawalhisto...')
+#2 /opt/lampp/htdocs/newqash/index.php(61): unauthorized('withdrawalhisto...')
+#3 {main}
+  thrown in /opt/lampp/htdocs/newqash/config/func.php on line 1109
+[03-Jan-2026 19:13:17 Africa/Nairobi] PHP Fatal error:  Uncaught Error: Cannot use object of type mysqli_result as array in /opt/lampp/htdocs/newqash/modules/networking.php:1698
+Stack trace:
+#0 /opt/lampp/htdocs/newqash/config/func.php(1497): datadailybonus('96BCB75785')
+#1 /opt/lampp/htdocs/newqash/config/func.php(1110): data()
+#2 /opt/lampp/htdocs/newqash/modules/index.php(38): auths()
+#3 /opt/lampp/htdocs/newqash/modules/index.php(32): authorized('withdrawalhisto...')
+#4 /opt/lampp/htdocs/newqash/index.php(61): unauthorized('withdrawalhisto...')
+#5 {main}
+  thrown in /opt/lampp/htdocs/newqash/modules/networking.php on line 1698
+[03-Jan-2026 19:13:56 Africa/Nairobi] PHP Warning:  Undefined array key 0 in /opt/lampp/htdocs/newqash/modules/networking.php on line 1698
+[03-Jan-2026 19:15:25 Africa/Nairobi] PHP Warning:  Undefined array key 0 in /opt/lampp/htdocs/newqash/modules/networking.php on line 1698
+[03-Jan-2026 19:16:02 Africa/Nairobi] PHP Warning:  Undefined array key 0 in /opt/lampp/htdocs/newqash/modules/networking.php on line 1698
+[03-Jan-2026 19:16:17 Africa/Nairobi] PHP Warning:  Undefined array key "totala" in /opt/lampp/htdocs/newqash/modules/networking.php on line 1698
+[03-Jan-2026 19:50:48 Africa/Nairobi] PHP Warning:  Undefined array key "qry" in /opt/lampp/htdocs/newqash/config/func.php on line 1594
+[03-Jan-2026 19:50:48 Africa/Nairobi] PHP Fatal error:  Uncaught TypeError: mysqli_fetch_assoc(): Argument #1 ($result) must be of type mysqli_result, null given in /opt/lampp/htdocs/newqash/config/func.php:1594
+Stack trace:
+#0 /opt/lampp/htdocs/newqash/config/func.php(1594): mysqli_fetch_assoc(NULL)
+#1 /opt/lampp/htdocs/newqash/config/func.php(1044): data()
+#2 /opt/lampp/htdocs/newqash/config/func.php(107): login()
+#3 /opt/lampp/htdocs/newqash/modules/index.php(29): fne('login')
+#4 /opt/lampp/htdocs/newqash/index.php(61): unauthorized('login')
+#5 {main}
+  thrown in /opt/lampp/htdocs/newqash/config/func.php on line 1594
+[03-Jan-2026 19:57:52 Africa/Nairobi] PHP Warning:  Undefined array key "qry" in /opt/lampp/htdocs/newqash/config/func.php on line 1594
+[03-Jan-2026 19:57:52 Africa/Nairobi] PHP Fatal error:  Uncaught TypeError: mysqli_fetch_assoc(): Argument #1 ($result) must be of type mysqli_result, null given in /opt/lampp/htdocs/newqash/config/func.php:1594
+Stack trace:
+#0 /opt/lampp/htdocs/newqash/config/func.php(1594): mysqli_fetch_assoc(NULL)
+#1 /opt/lampp/htdocs/newqash/config/func.php(1044): data()
+#2 /opt/lampp/htdocs/newqash/config/func.php(107): login()
+#3 /opt/lampp/htdocs/newqash/modules/index.php(29): fne('login')
+#4 /opt/lampp/htdocs/newqash/index.php(61): unauthorized('login')
+#5 {main}
+  thrown in /opt/lampp/htdocs/newqash/config/func.php on line 1594
