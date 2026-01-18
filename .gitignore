@@ -1,4 +1,10 @@
+# GIT IGNORE 
+
 config/.env
 config/config.php
 
-logs
+logs/
+
+callbackurl/*.txt
+callbackurl/*.json
+callbackurl/*.log
