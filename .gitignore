@@ -1,5 +1,7 @@
 # GIT IGNORE 
 
+error.log
+
 config/.env
 config/config.php
 
