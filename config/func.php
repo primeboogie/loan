@@ -1949,8 +1949,8 @@ function others($uid = null)
 
         $dataquery = mysqli_fetch_assoc(comboselects($dataq, 1)['qry']);
 
-        if ($dataquery['res']) {
-            $dataquery = mysqli_fetch_assoc($dataquery['qry']);
+        if ($dataquery) {
+            // $dataquery = mysqli_fetch_assoc($dataquery['qry']);
             $uid = $dataquery['uid'];
 
             $userdata = [
@@ -2142,7 +2142,7 @@ function giveOutRandId()
     if ($allUser['res']) {
         $response['Total Users'] = $allUser['rows'];
         while ($data = mysqli_fetch_assoc($allUser['qry'])) {
-            if (strlen($data['randid']) < 18) {
+            if (strlen($data['rand d']) < 18) {
 
                 $randId = checkrandtoken("use", generatetoken("32", false));
                 $uid = $data['uid'];
@@ -2347,69 +2347,112 @@ function mtnTrack($json)
         'raw_message' => null
     ];
 
-    if (isset($data['timestamp'])) {
-        $result['timestamp'] = $data['timestamp'];
+    // Metadata
+    $result['timestamp']        = $data['timestamp'] ?? null;
+    $result['webhook_id']       = $data['webhookId'] ?? null;
+    $result['message_id']       = $data['payload']['messageId'] ?? null;
+    $result['sim_number']       = $data['payload']['simNumber'] ?? null;
+    $result['receiver_phone']   = $data['payload']['phoneNumber'] ?? null;
+    $result['message_timestamp']= $data['payload']['receivedAt'] ?? null;
+
+    if (!isset($data['payload']['message'])) {
+        return $result;
     }
 
-    if (isset($data['webhookId'])) {
-        $result['webhook_id'] = $data['webhookId'];
+    $message = $data['payload']['message'];
+    $result['raw_message'] = $message;
+
+    /*
+    |--------------------------------------------------------------------------
+    | AMOUNT
+    | Example: received 17000 UGX
+    |--------------------------------------------------------------------------
+    */
+    if (preg_match('/received\s+([\d,]+)\s+UGX/i', $message, $m)) {
+        $result['amount'] = (int) str_replace(',', '', $m[1]);
     }
 
-    if (isset($data['payload']['messageId'])) {
-        $result['message_id'] = $data['payload']['messageId'];
+    /*
+    |--------------------------------------------------------------------------
+    | SENDER NAME & PHONE
+    | Example: from JANE ARIONGET (256773367251)
+    |--------------------------------------------------------------------------
+    */
+    if (preg_match('/from\s+(.+?)\s+\((\d{9,15})\)/i', $message, $m)) {
+        $result['sender_name']  = trim($m[1]);
+        $result['sender_phone'] = trim($m[2]);
     }
 
-    if (isset($data['payload']['simNumber'])) {
-        $result['sim_number'] = $data['payload']['simNumber'];
+    /*
+    |--------------------------------------------------------------------------
+    | TRANSACTION DATE/TIME
+    | Example: at 2025-06-26 20:00:53
+    |--------------------------------------------------------------------------
+    */
+    if (preg_match('/at\s+(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2})/i', $message, $m)) {
+        $result['timestamp'] = $m[1];
     }
 
-    if (isset($data['payload']['phoneNumber'])) {
-        $result['receiver_phone'] = $data['payload']['phoneNumber'];
+    /*
+    |--------------------------------------------------------------------------
+    | TILL NUMBER
+    | Example: Till:486920
+    |--------------------------------------------------------------------------
+    */
+    if (preg_match('/Till\s*:\s*(\d+)/i', $message, $m)) {
+        $result['till_number'] = $m[1];
     }
 
-    if (isset($data['payload']['receivedAt'])) {
-        $result['message_timestamp'] = $data['payload']['receivedAt'];
+    /*
+    |--------------------------------------------------------------------------
+    | BALANCE
+    | Example: Your new balance: 171001 UGX
+    |--------------------------------------------------------------------------
+    */
+    if (preg_match('/new balance:\s*([\d,]+)\s*UGX/i', $message, $m)) {
+        $result['balance'] = (int) str_replace(',', '', $m[1]);
     }
 
-    if (isset($data['payload']['message'])) {
-        $message = $data['payload']['message'];
-        $result['raw_message'] = $message;
+    /*
+    |--------------------------------------------------------------------------
+    | FEE
+    | Example: Fee was 0 UGX
+    |--------------------------------------------------------------------------
+    */
+    if (preg_match('/Fee was\s*([\d,]+)\s*UGX/i', $message, $m)) {
+        $result['fee'] = (int) str_replace(',', '', $m[1]);
+    }
 
-        // Extract amount
-        if (preg_match('/received UGX\s*([\d,]+)/i', $message, $matches)) {
-            $result['amount'] = (int)str_replace(',', '', $matches[1]);
-        }
+    /*
+    |--------------------------------------------------------------------------
+    | FINANCIAL TRANSACTION ID
+    | Example: Financial Transaction Id: 33640122632
+    |--------------------------------------------------------------------------
+    */
+    if (preg_match('/Financial Transaction Id:\s*([\d]+)/i', $message, $m)) {
+        $result['financial_transaction_id'] = $m[1];
+    }
 
-        // Extract sender name and phone
-        if (preg_match('/from\s*\((.*?)\)\s*(\d{9,12})/i', $message, $matches)) {
-            $result['sender_name'] = trim($matches[1]);
-            $result['sender_phone'] = trim($matches[2]);
-        }
-
-        // Extract balance
-        if (preg_match('/balance:\s*([\d,]+\.\d{1,2})/i', $message, $matches)) {
-            $result['balance'] = (float)str_replace(',', '', $matches[1]);
-        }
-
-        // Extract transaction ID
-        if (preg_match('/Transaction ID:\s*(\d+)/i', $message, $matches)) {
-            $result['transaction_id'] = trim($matches[1]);
-        }
+    /*
+    |--------------------------------------------------------------------------
+    | EXTERNAL TRANSACTION ID
+    | Example: External Transaction Id: -
+    |--------------------------------------------------------------------------
+    */
+    if (preg_match('/External Transaction Id:\s*([^\s\.]+)/i', $message, $m)) {
+        $result['external_transaction_id'] = $m[1] !== '-' ? $m[1] : null;
     }
 
     return $result;
 }
 
-
 function MTNSSD($json)
 {
-    // Decode JSON
     $data = json_decode($json, true);
     if (!$data) {
         return null;
     }
 
-    // Initialize result array with default values
     $result = [
         'provider' => 'MTN',
         'amount' => null,
@@ -2425,72 +2468,100 @@ function MTNSSD($json)
         'balance' => null,
         'fee' => null,
         'till_number' => null,
+        'reason' => null,
         'webhook_id' => null,
         'sim_number' => null,
         'raw_message' => null
     ];
 
-    // Extract common data
-    if (isset($data['timestamp'])) {
-        $result['timestamp'] = $data['timestamp'];
+    // Metadata
+    $result['timestamp']         = $data['timestamp'] ?? null;
+    $result['webhook_id']        = $data['webhookId'] ?? null;
+    $result['message_id']        = $data['payload']['messageId'] ?? null;
+    $result['sim_number']        = $data['payload']['simNumber'] ?? null;
+    $result['receiver_phone']    = $data['payload']['phoneNumber'] ?? null;
+    $result['message_timestamp'] = $data['payload']['receivedAt'] ?? null;
+
+    if (!isset($data['payload']['message'])) {
+        return $result;
     }
 
-    if (isset($data['webhookId'])) {
-        $result['webhook_id'] = $data['webhookId'];
+    $message = $data['payload']['message'];
+    $result['raw_message'] = $message;
+
+    /*
+    |--------------------------------------------------------------------------
+    | AMOUNT
+    | Example: received 18000.00 SSP
+    |--------------------------------------------------------------------------
+    */
+    if (preg_match('/received\s+([\d\.]+)\s*SSP/i', $message, $m)) {
+        $result['amount'] = (float) $m[1];
     }
 
-    if (isset($data['payload']['messageId'])) {
-        $result['message_id'] = $data['payload']['messageId'];
+    /*
+    |--------------------------------------------------------------------------
+    | SENDER NAME & PHONE
+    | Example: from Tayebwa Simon (211920340648)
+    |--------------------------------------------------------------------------
+    */
+    if (preg_match('/from\s+(.+?)\s*\((\d{9,15})\)/i', $message, $m)) {
+        $result['sender_name']  = trim($m[1]);
+        $result['sender_phone'] = $m[2];
     }
 
-    if (isset($data['payload']['simNumber'])) {
-        $result['sim_number'] = $data['payload']['simNumber'];
+    /*
+    |--------------------------------------------------------------------------
+    | TRANSACTION DATE/TIME
+    | Example: on  2025-10-24 20:58:27
+    |--------------------------------------------------------------------------
+    */
+    if (preg_match('/on\s+(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2})/i', $message, $m)) {
+        $result['timestamp'] = $m[1];
     }
 
-    if (isset($data['payload']['phoneNumber'])) {
-        $result['receiver_phone'] = $data['payload']['phoneNumber'];
+    /*
+    |--------------------------------------------------------------------------
+    | REASON
+    | Example: Reason: .
+    |--------------------------------------------------------------------------
+    */
+    if (preg_match('/Reason:\s*([^\.]*)\./i', $message, $m)) {
+        $reason = trim($m[1]);
+        $result['reason'] = $reason !== '' ? $reason : null;
     }
 
-    if (isset($data['payload']['receivedAt'])) {
-        $result['message_timestamp'] = $data['payload']['receivedAt'];
+    /*
+    |--------------------------------------------------------------------------
+    | BALANCE
+    | Example: New balance:866900.00 SSP
+    |--------------------------------------------------------------------------
+    */
+    if (preg_match('/New balance:\s*([\d\.]+)\s*SSP/i', $message, $m)) {
+        $result['balance'] = (float) $m[1];
     }
 
-    if (isset($data['payload']['message'])) {
-        $message = $data['payload']['message'];
-        $result['raw_message'] = $message;
-
-        // Extract amount (SSP currency)
-        if (preg_match('/received (\d+\.\d{2}) SSP/', $message, $matches)) {
-            $result['amount'] = (float)$matches[1];
-        }
-
-        // Extract sender name and phone
-        if (preg_match('/from (.*?) \((\d+)\)/', $message, $matches)) {
-            $result['sender_name'] = trim($matches[1]);
-            $result['sender_phone'] = $matches[2];
-        }
-
-        // Extract transaction timestamp from the message
-        if (preg_match('/on\s+(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})/', $message, $matches)) {
-            $result['transaction_timestamp'] = $matches[1];
-        }
-
-        // Extract balance (SSP currency)
-        if (preg_match('/New balance:(\d+\.\d{2}) SSP/', $message, $matches)) {
-            $result['balance'] = (float)$matches[1];
-        }
-
-        // Extract transaction ID
-        if (preg_match('/Transaction Id: (\d+)\./', $message, $matches)) {
-            $result['transaction_id'] = $matches[1];
-            $result['financial_transaction_id'] = $matches[1]; // Assuming this is the same as transaction_id in these messages
-        }
-
-        // Extract reason if present (though samples show empty reasons)
-        if (preg_match('/Reason: ([^\.]+)\./', $message, $matches)) {
-            $result['reason'] = trim($matches[1]);
-        }
+    /*
+    |--------------------------------------------------------------------------
+    | TRANSACTION ID
+    | Example: Transaction Id: 344913028
+    |--------------------------------------------------------------------------
+    */
+    if (preg_match('/Transaction Id:\s*(\d+)/i', $message, $m)) {
+        $result['transaction_id'] = $m[1];
+        $result['financial_transaction_id'] = $m[1];
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | FALLBACK TRANSACTION ID
+    |--------------------------------------------------------------------------
+    */
+    if (!$result['transaction_id']) {
+        $result['transaction_id'] =
+            $result['message_id'] ?? uniqid('mtn_ssd_', true);
+    }
+
     return $result;
 }
 
@@ -2601,13 +2672,11 @@ function MTNSSD($json)
 
 function MTNCAMEROON($json)
 {
-    // Decode JSON
     $data = json_decode($json, true);
     if (!$data) {
         return null;
     }
 
-    // Initialize result array with default values
     $result = [
         'provider' => 'MTN',
         'amount' => null,
@@ -2628,86 +2697,101 @@ function MTNCAMEROON($json)
         'raw_message' => null
     ];
 
-    // Extract common data
-    if (isset($data['timestamp'])) {
-        $result['timestamp'] = $data['timestamp'];
+    // Metadata
+    $result['timestamp']         = $data['timestamp'] ?? null;
+    $result['webhook_id']        = $data['webhookId'] ?? null;
+    $result['message_id']        = $data['payload']['messageId'] ?? null;
+    $result['sim_number']        = $data['payload']['simNumber'] ?? null;
+    $result['receiver_phone']    = $data['payload']['phoneNumber'] ?? null;
+    $result['message_timestamp'] = $data['payload']['receivedAt'] ?? null;
+
+    if (!isset($data['payload']['message'])) {
+        return $result;
     }
 
-    if (isset($data['webhookId'])) {
-        $result['webhook_id'] = $data['webhookId'];
+    $message = $data['payload']['message'];
+    $result['raw_message'] = $message;
+
+    /*
+    |--------------------------------------------------------------------------
+    | AMOUNT
+    | Example: received 3000 XAF
+    |--------------------------------------------------------------------------
+    */
+    if (preg_match('/received\s+([\d,]+)\s+XAF/i', $message, $m)) {
+        $result['amount'] = (int) str_replace(',', '', $m[1]);
     }
 
-    if (isset($data['payload']['messageId'])) {
-        $result['message_id'] = $data['payload']['messageId'];
+    /*
+    |--------------------------------------------------------------------------
+    | SENDER NAME & PHONE
+    | Example: from MBOTAKE BERNARD OKATOKE (237678273387)
+    |--------------------------------------------------------------------------
+    */
+    if (preg_match('/from\s+(.+?)\s+\((\d{9,15})\)/i', $message, $m)) {
+        $result['sender_name']  = trim($m[1]);
+        $result['sender_phone'] = $m[2];
     }
 
-    if (isset($data['payload']['simNumber'])) {
-        $result['sim_number'] = $data['payload']['simNumber'];
+    /*
+    |--------------------------------------------------------------------------
+    | TRANSACTION DATETIME
+    | Example: at 2026-01-17 08:45:49
+    |--------------------------------------------------------------------------
+    */
+    if (preg_match('/at\s+(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2})/i', $message, $m)) {
+        $result['timestamp'] = $m[1];
     }
 
-    if (isset($data['payload']['phoneNumber'])) {
-        $result['receiver_phone'] = $data['payload']['phoneNumber'];
+    /*
+    |--------------------------------------------------------------------------
+    | BALANCE
+    | Example: Your new balance: 5940 XAF
+    |--------------------------------------------------------------------------
+    */
+    if (preg_match('/new balance:\s*([\d,]+)\s*XAF/i', $message, $m)) {
+        $result['balance'] = (int) str_replace(',', '', $m[1]);
     }
 
-    if (isset($data['payload']['receivedAt'])) {
-        $result['message_timestamp'] = $data['payload']['receivedAt'];
+    /*
+    |--------------------------------------------------------------------------
+    | FEE
+    | Example: Fee was 30 XAF
+    |--------------------------------------------------------------------------
+    */
+    if (preg_match('/Fee was\s*([\d,]+)\s*XAF/i', $message, $m)) {
+        $result['fee'] = (int) str_replace(',', '', $m[1]);
     }
 
-    if (isset($data['payload']['message'])) {
-        $message = $data['payload']['message'];
-        $result['raw_message'] = $message;
+    /*
+    |--------------------------------------------------------------------------
+    | FINANCIAL TRANSACTION ID
+    | Example: Financial Transaction Id: 15526550470
+    |--------------------------------------------------------------------------
+    */
+    if (preg_match('/Financial Transaction Id:\s*(\d+)/i', $message, $m)) {
+        $result['financial_transaction_id'] = $m[1];
+        $result['transaction_id'] = $m[1];
+    }
 
-        // Extract amount
-        if (preg_match('/Vous avez recu (\d+) XAF/', $message, $matches)) {
-            $result['amount'] = (int)$matches[1];
-        }
+    /*
+    |--------------------------------------------------------------------------
+    | EXTERNAL TRANSACTION ID
+    | Example: External Transaction Id: -
+    |--------------------------------------------------------------------------
+    */
+    if (preg_match('/External Transaction Id:\s*([^\.\s]+)/i', $message, $m)) {
+        $result['external_transaction_id'] = $m[1] !== '-' ? $m[1] : null;
+    }
 
-        // Extract sender name and phone
-        if (preg_match('/de (.*?) \((\d+)\)/', $message, $matches)) {
-            $result['sender_name'] = trim($matches[1]);
-            $result['sender_phone'] = $matches[2];
-        }
-
-        // Extract transaction timestamp
-        if (preg_match('/a (\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})/', $message, $matches)) {
-            $result['timestamp'] = $matches[1];
-        }
-
-        // Extract balance
-        if (preg_match('/Votre nouveau solde : (\d+) XAF/', $message, $matches)) {
-            $result['balance'] = (int)$matches[1];
-        }
-
-        // Extract fee
-        if (preg_match('/Les frais etaient de (\d+) XAF/', $message, $matches)) {
-            $result['fee'] = (int)$matches[1];
-        }
-
-        // Extract financial transaction ID
-        if (preg_match('/L\'identifiant de la transaction financiere : (\d+)/', $message, $matches)) {
-            $result['financial_transaction_id'] = $matches[1];
-            $result['transaction_id'] = $matches[1]; // also transaction_id
-        }
-
-        // Extract external transaction ID
-        if (preg_match('/Identifiant de la transaction externe : ([^\.]+)/', $message, $matches)) {
-            $result['external_transaction_id'] = trim($matches[1]) == '-' ? null : trim($matches[1]);
-        }
-
-        // Extract financial transaction ID
-        if (preg_match("/L['’]identifiant de la transaction financiere ?: (\d+)/u", $message, $matches)) {
-            $result['financial_transaction_id'] = $matches[1];
-            $result['transaction_id'] = $matches[1];
-        }
-
-        // Fallback if transaction_id is still null
-        if (!$result['transaction_id']) {
-            if (!empty($result['message_id'])) {
-                $result['transaction_id'] = $result['message_id']; // fallback to messageId
-            } else {
-                $result['transaction_id'] = uniqid("mtn_", true); // generate unique id if nothing found
-            }
-        }
+    /*
+    |--------------------------------------------------------------------------
+    | FALLBACK TRANSACTION ID
+    |--------------------------------------------------------------------------
+    */
+    if (!$result['transaction_id']) {
+        $result['transaction_id'] = $result['message_id']
+            ?? uniqid('mtn_cm_', true);
     }
 
     return $result;
@@ -2716,15 +2800,13 @@ function MTNCAMEROON($json)
 
 function ORANGEMONEY($json)
 {
-    // Decode JSON
     $data = json_decode($json, true);
     if (!$data) {
         return null;
     }
 
-    // Initialize result array with default values
     $result = [
-        'provider' => 'MTN',
+        'provider' => 'ORANGE',
         'amount' => null,
         'sender_name' => null,
         'sender_phone' => null,
@@ -2743,70 +2825,105 @@ function ORANGEMONEY($json)
         'raw_message' => null
     ];
 
-    // Extract common data
-    if (isset($data['timestamp'])) {
-        $result['timestamp'] = $data['timestamp'];
+    // Metadata
+    $result['timestamp']         = $data['timestamp'] ?? null;
+    $result['webhook_id']        = $data['webhookId'] ?? null;
+    $result['message_id']        = $data['payload']['messageId'] ?? null;
+    $result['sim_number']        = $data['payload']['simNumber'] ?? null;
+    $result['receiver_phone']    = $data['payload']['phoneNumber'] ?? null;
+    $result['message_timestamp'] = $data['payload']['receivedAt'] ?? null;
+
+    if (!isset($data['payload']['message'])) {
+        return $result;
     }
 
-    if (isset($data['webhookId'])) {
-        $result['webhook_id'] = $data['webhookId'];
+    $message = $data['payload']['message'];
+    $result['raw_message'] = $message;
+
+    /*
+    |--------------------------------------------------------------------------
+    | SENDER PHONE & NAME
+    | Example: from 692488314 ETOHA MOMASSO
+    |--------------------------------------------------------------------------
+    */
+    if (preg_match('/from\s+(\d{6,15})\s+([A-Z\s]+)/i', $message, $m)) {
+        $result['sender_phone'] = $m[1];
+        $result['sender_name']  = trim($m[2]);
     }
 
-    if (isset($data['payload']['messageId'])) {
-        $result['message_id'] = $data['payload']['messageId'];
+    /*
+    |--------------------------------------------------------------------------
+    | RECEIVER PHONE
+    | Example: to 697567490 AKIE
+    |--------------------------------------------------------------------------
+    */
+    if (preg_match('/to\s+(\d{6,15})\s+/i', $message, $m)) {
+        $result['receiver_phone'] = $m[1];
     }
 
-    if (isset($data['payload']['simNumber'])) {
-        $result['sim_number'] = $data['payload']['simNumber'];
+    /*
+    |--------------------------------------------------------------------------
+    | TRANSACTION ID
+    | Example: PP260109.2106.C05986
+    |--------------------------------------------------------------------------
+    */
+    if (preg_match('/Transaction ID:\s*([A-Z0-9\.\-]+)/i', $message, $m)) {
+        $result['transaction_id'] = $m[1];
+        $result['financial_transaction_id'] = $m[1];
     }
 
-    if (isset($data['payload']['phoneNumber'])) {
-        $result['receiver_phone'] = $data['payload']['phoneNumber'];
+    /*
+    |--------------------------------------------------------------------------
+    | AMOUNT
+    | Example: Transaction amount: 3000 FCFA
+    |--------------------------------------------------------------------------
+    */
+    if (preg_match('/Transaction amount:\s*([\d\.]+)\s*FCFA/i', $message, $m)) {
+        $result['amount'] = (float) $m[1];
     }
 
-    if (isset($data['payload']['receivedAt'])) {
-        $result['message_timestamp'] = $data['payload']['receivedAt'];
+    /*
+    |--------------------------------------------------------------------------
+    | CHARGES + COMMISSION = FEE
+    | Example: Charges: 0 FCFA, Commission: 0 FCFA
+    |--------------------------------------------------------------------------
+    */
+    $charges = 0;
+    $commission = 0;
+
+    if (preg_match('/Charges:\s*([\d\.]+)\s*FCFA/i', $message, $m)) {
+        $charges = (float) $m[1];
     }
 
-    if (isset($data['payload']['message'])) {
-        $message = $data['payload']['message'];
-        $result['raw_message'] = $message;
+    if (preg_match('/Commission:\s*([\d\.]+)\s*FCFA/i', $message, $m)) {
+        $commission = (float) $m[1];
+    }
 
-        // Extract amount (FCFA currency)
-        if (preg_match('/Transaction amount: (\d+(?:\.\d+)?) FCFA/', $message, $matches)) {
-            $result['amount'] = (float)$matches[1];
-        }
+    $result['fee'] = $charges + $commission;
 
-        // Extract sender name and phone
-        if (preg_match('/from (\d+) ([^ ]+(?: [^ ]+)*) to/', $message, $matches)) {
-            $result['sender_phone'] = $matches[1];
-            $result['sender_name'] = trim($matches[2]);
-        }
+    /*
+    |--------------------------------------------------------------------------
+    | BALANCE
+    | Example: New balance: 48543.86 FCFA
+    |--------------------------------------------------------------------------
+    */
+    if (preg_match('/New balance:\s*([\d\.]+)\s*FCFA/i', $message, $m)) {
+        $result['balance'] = (float) $m[1];
+    }
 
-        // Extract receiver phone (if not already set from payload)
-        if (!$result['receiver_phone'] && preg_match('/to (\d+) ([^,]+)/', $message, $matches)) {
-            $result['receiver_phone'] = $matches[1];
-        }
-
-        // Extract transaction ID
-        if (preg_match('/Transaction ID: ([^,]+)/', $message, $matches)) {
-            $result['transaction_id'] = trim($matches[1]);
-            $result['financial_transaction_id'] = trim($matches[1]);
-        }
-
-        // Extract balance (FCFA currency)
-        if (preg_match('/New balance: (\d+(?:\.\d+)?) FCFA/', $message, $matches)) {
-            $result['balance'] = (float)$matches[1];
-        }
-
-        // Extract fee (using Charges + Commission)
-        if (preg_match('/Charges: (\d+(?:\.\d+)?) FCFA.*Commission: (\d+(?:\.\d+)?) FCFA/', $message, $matches)) {
-            $result['fee'] = (float)$matches[1] + (float)$matches[2];
-        }
+    /*
+    |--------------------------------------------------------------------------
+    | FALLBACK TRANSACTION ID
+    |--------------------------------------------------------------------------
+    */
+    if (!$result['transaction_id']) {
+        $result['transaction_id'] = $result['message_id']
+            ?? uniqid('orange_', true);
     }
 
     return $result;
 }
+
 /**
  * Extract transaction details from Airtel Money SMS
  * 
@@ -2815,13 +2932,11 @@ function ORANGEMONEY($json)
  */
 function airtelTrack($json)
 {
-    // Decode JSON
     $data = json_decode($json, true);
     if (!$data) {
         return null;
     }
 
-    // Initialize result array with default values
     $result = [
         'provider' => 'Airtel',
         'amount' => null,
@@ -2838,58 +2953,69 @@ function airtelTrack($json)
         'raw_message' => null
     ];
 
-    // Extract common data
-    if (isset($data['timestamp'])) {
-        $result['timestamp'] = $data['timestamp'];
+    // Metadata
+    $result['timestamp']         = $data['timestamp'] ?? null;
+    $result['webhook_id']        = $data['webhookId'] ?? null;
+    $result['message_id']        = $data['payload']['messageId'] ?? null;
+    $result['sim_number']        = $data['payload']['simNumber'] ?? null;
+    $result['receiver_phone']    = $data['payload']['phoneNumber'] ?? null;
+    $result['message_timestamp'] = $data['payload']['receivedAt'] ?? null;
+
+    if (!isset($data['payload']['message'])) {
+        return $result;
     }
 
-    if (isset($data['webhookId'])) {
-        $result['webhook_id'] = $data['webhookId'];
+    $message = $data['payload']['message'];
+    $result['raw_message'] = $message;
+
+    /*
+    |--------------------------------------------------------------------------
+    | TRANSACTION ID
+    | Example: TID125818901439
+    |--------------------------------------------------------------------------
+    */
+    if (preg_match('/TID(\d+)/i', $message, $m)) {
+        $result['transaction_id'] = $m[1];
     }
 
-    if (isset($data['payload']['messageId'])) {
-        $result['message_id'] = $data['payload']['messageId'];
+    /*
+    |--------------------------------------------------------------------------
+    | AMOUNT
+    | Example: UGX 17,000
+    |--------------------------------------------------------------------------
+    */
+    if (preg_match('/UGX\s*([\d,]+)/i', $message, $m)) {
+        $result['amount'] = (int) str_replace(',', '', $m[1]);
     }
 
-    if (isset($data['payload']['simNumber'])) {
-        $result['sim_number'] = $data['payload']['simNumber'];
+    /*
+    |--------------------------------------------------------------------------
+    | SENDER PHONE
+    | Example: from 750111271
+    |--------------------------------------------------------------------------
+    */
+    if (preg_match('/from\s+(\d{6,15})/i', $message, $m)) {
+        $result['sender_phone'] = $m[1];
     }
 
-    if (isset($data['payload']['phoneNumber'])) {
-        $result['receiver_phone'] = $data['payload']['phoneNumber'];
+    /*
+    |--------------------------------------------------------------------------
+    | REFERENCE
+    | Example: referenceusername / referenceAZAI
+    |--------------------------------------------------------------------------
+    */
+    if (preg_match('/reference\s*([a-zA-Z0-9]+)/i', $message, $m)) {
+        $result['reference'] = $m[1];
     }
 
-    if (isset($data['payload']['receivedAt'])) {
-        $result['message_timestamp'] = $data['payload']['receivedAt'];
-    }
-
-    if (isset($data['payload']['message'])) {
-        $message = $data['payload']['message'];
-        $result['raw_message'] = $message;
-
-        // Extract transaction ID
-        if (preg_match('/TID(\d+)/', $message, $matches)) {
-            $result['transaction_id'] = $matches[1];
-        }
-
-        if (preg_match('/UGX ([\d,]+)/', $message, $matches)) {
-            $result['amount'] = (int)str_replace(',', '', $matches[1]);
-        }
-
-        // Extract sender phone
-        if (preg_match('/from (\d+)/', $message, $matches)) {
-            $result['sender_phone'] = $matches[1];
-        }
-
-        // Extract reference
-        if (preg_match('/reference([a-zA-Z0-9]+)/', $message, $matches)) {
-            $result['reference'] = $matches[1];
-        }
-
-        // Extract balance (handle comma formatting)
-        if (preg_match('/Bal.*?UGX ([0-9,]+)/', $message, $matches)) {
-            $result['balance'] = (int)str_replace(',', '', $matches[1]);
-        }
+    /*
+    |--------------------------------------------------------------------------
+    | BALANCE
+    | Example: BalUGX 328,000
+    |--------------------------------------------------------------------------
+    */
+    if (preg_match('/Bal\s*UGX\s*([\d,]+)/i', $message, $m)) {
+        $result['balance'] = (int) str_replace(',', '', $m[1]);
     }
 
     return $result;
@@ -2929,27 +3055,27 @@ function trackTransaction()
     $phoneNumber = $data['payload']['phoneNumber'];
 
     if ($phoneNumber === 'MTNMobMoney') {
-
+            // Uganda MTN 
         $logmtn = __DIR__ . '/../callbackurl/mtn.txt';
         file_put_contents($logmtn, $logEntry, FILE_APPEND);
         return mtnTrack($rawBody);
     } else if ($phoneNumber === 'AirtelMoney') {
-
+            // Uganda Airtel
         $logairtel = __DIR__ . '/../callbackurl/airtel.txt';
         file_put_contents($logairtel, $logEntry, FILE_APPEND);
         return airtelTrack($rawBody);
     } else if ($phoneNumber === 'MTN MoMo') {
-
+// SSD MTN
         $logairtel = __DIR__ . '/../callbackurl/airtel.txt';
         file_put_contents($logairtel, $logEntry, FILE_APPEND);
         return MTNSSD($rawBody);
     } else if ($phoneNumber === 'MobileMoney') {
-
+// CAMEROON MTN
         $logairtel = __DIR__ . '/../callbackurl/airtel.txt';
         file_put_contents($logairtel, $logEntry, FILE_APPEND);
         return MTNCAMEROON($rawBody);
     } else if ($phoneNumber === 'OrangeMoney') {
-
+// CAMEROON ORANGE
         $logairtel = __DIR__ . '/../callbackurl/airtel.txt';
         file_put_contents($logairtel, $logEntry, FILE_APPEND);
         return ORANGEMONEY($rawBody);
