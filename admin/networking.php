@@ -12,7 +12,7 @@ function suspendaccount()
     }
 
 
-    
+
     $uid = $inputs['uid'];
     $suspension = updates("use", "active = !active ", "uid = '$uid'");
 
@@ -439,7 +439,7 @@ function adminupdate()
                     newpasswords($password);
                     return sendJsonResponse(200, true);
                 }
-
+                return sendJsonResponse(200, true);
             } else {
                 notify(2, "Sorry We had an issue Updating The records", 200, 1);
                 sendJsonResponse(400);
@@ -467,7 +467,6 @@ function adminupdate()
             notify(2, "Sorry We had an issue Updating The records", 200, 1);
             sendJsonResponse(400);
         }
-
     } elseif ($action == 3 && $uid) {
         // login
         $stoken = generatetoken(82);

@@ -213,16 +213,15 @@ function tasks()
     }
 }
 
-function alluserold()
+function alluser()
 {
     $response = [];
 
-    // if (adminenv()) {
-    if (true) {
+    if (adminenv()) {
 
-        // $data = $_SESSION['query']['data'];
-        // $accname = $data['uname'];
-        // $uid = $_SESSION['suid'];
+        $data = $_SESSION['query']['data'];
+        $accname = $data['uname'];
+        $uid = $_SESSION['suid'];
 
 
         $dataq = "SELECT u.*, u.active AS useractive,b.*, c.*, e.*, c.cid AS CID, e.active AS feeactive, u1.uname AS upline1, u2.uname AS upline2, u3.uname AS upline3 FROM users u 
@@ -238,7 +237,7 @@ function alluserold()
         ON u3.uid = u.l3 
         LEFT JOIN affiliatefee e
         ON u.default_currency = e.cid AND e.active = true
-        WHERE 1 ORDER BY u.ustatus DESC";
+        WHERE 1 ORDER BY u.ustatus DESC limit 1000";
 
         $dataquery = comboselectsold($dataq, 1);
 
@@ -306,14 +305,12 @@ function alluserold()
 
 
 
-        // return sendJsonResponse(200, true, null, $response);
-        unset($dataquery);
-        return $response;
+        return sendJsonResponse(200, true, null, $response);
     }
 }
 
 
-function alluser()
+function alluserold()
 {
 
     $startMemory = memory_get_usage();
@@ -392,12 +389,13 @@ ORDER BY u.ustatus DESC;
     $endMemory = memory_get_usage();
     $peakMemory = memory_get_peak_usage();
 
-    $response['memory'] = [
-        'used' => formatBytes($endMemory - $startMemory),
-        'peak' => formatBytes($peakMemory),
-        'res' => true,
-        // 'query' => mysqli_fetch_all($result, MYSQLI_ASSOC)
-    ];
+    $response = $result;
+    // $response['memory'] = [
+    //     'used' => formatBytes($endMemory - $startMemory),
+    //     'peak' => formatBytes($peakMemory),
+    //     'res' => true,
+    //     // 'query' => mysqli_fetch_all($result, MYSQLI_ASSOC)I
+    // ];
 
     // return $response;
     sendJsonResponse(200, true, null, $response);
