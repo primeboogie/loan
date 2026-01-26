@@ -237,7 +237,7 @@ function alluser()
         ON u3.uid = u.l3 
         LEFT JOIN affiliatefee e
         ON u.default_currency = e.cid AND e.active = true
-        WHERE 1 ORDER BY u.ustatus DESC limit 1000";
+        WHERE 1 ORDER BY u.ustatus DESC";
 
         $dataquery = comboselectsold($dataq, 1);
 
