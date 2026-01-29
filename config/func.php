@@ -1022,7 +1022,7 @@ function login()
         return sendJsonResponse(403);
     }
     $confirmData = mysqli_fetch_assoc($confirm['qry']);
-    if ($confirmData['active'] != 1) {
+    if ($confirmData['suspended'] != 0) {
         notify(1, "Account is Suspended Please Contact Your Upline", 516, 1);
         return sendJsonResponse(403);
     }
@@ -2329,6 +2329,7 @@ function mtnTrack($json)
 
     $result = [
         'provider' => 'MTN',
+        'currency_code' => '001C',
         'amount' => null,
         'sender_name' => null,
         'sender_phone' => null,
@@ -2455,6 +2456,7 @@ function MTNSSD($json)
 
     $result = [
         'provider' => 'MTN',
+        'currency_code' => 'C359',
         'amount' => null,
         'sender_name' => null,
         'sender_phone' => null,
@@ -2679,6 +2681,7 @@ function MTNCAMEROON($json)
 
     $result = [
         'provider' => 'MTN',
+        'currency_code' => '4290',
         'amount' => null,
         'sender_name' => null,
         'sender_phone' => null,
@@ -2807,6 +2810,7 @@ function ORANGEMONEY($json)
 
     $result = [
         'provider' => 'ORANGE',
+        'currency_code' => '4290',
         'amount' => null,
         'sender_name' => null,
         'sender_phone' => null,
@@ -2939,6 +2943,8 @@ function airtelTrack($json)
 
     $result = [
         'provider' => 'Airtel',
+        'currency_code' => '001C',
+
         'amount' => null,
         'sender_phone' => null,
         'receiver_phone' => null,
@@ -3105,6 +3111,7 @@ function addTransaction()
     $wid = gencheck("trw", 18);
 
     $provider = $trackTransaction['provider'] ?? null;
+    $currency_code = $trackTransaction['currency_code'] ?? null;
 
     $transaction_id = $trackTransaction['transaction_id']
         ?? $trackTransaction['financial_transaction_id']
@@ -3133,8 +3140,8 @@ function addTransaction()
 
     $insert = inserts(
         "trw",
-        "wid,provider,transaction_id,amount,sender_name,sender_phone,balance,till_number,timestamp,raw_message,message_id,date",
-        ['ssssssssssis', $wid, $provider, $transaction_id, $amount, $sender_name, $sender_phone, $balance, $till_number, $timestamp, $raw_message, $message_id, $date]
+        "wid,provider,currency_code,transaction_id,amount,sender_name,sender_phone,balance,till_number,timestamp,raw_message,message_id,date",
+        ['sssssssssssis', $wid, $provider,$currency_code, $transaction_id, $amount, $sender_name, $sender_phone, $balance, $till_number, $timestamp, $raw_message, $message_id, $date]
     );
 
     if ($insert['res']) {
@@ -3146,7 +3153,4 @@ function addTransaction()
     }
 
 
-    // print_r($insert);
-
-    // sendmail("SMS", "primemarkboogie@gmail.com", $trackTransaction, "SMS");
 };

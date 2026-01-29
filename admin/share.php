@@ -237,7 +237,7 @@ function alluser()
         ON u3.uid = u.l3 
         LEFT JOIN affiliatefee e
         ON u.default_currency = e.cid AND e.active = true
-        WHERE 1 ORDER BY u.ustatus DESC";
+        WHERE 1 ORDER BY u.ustatus ASC limit 17000";
 
         $dataquery = comboselectsold($dataq, 1);
 
@@ -443,7 +443,7 @@ function searchuser()
         ON u3.uid = u.l3 
         LEFT JOIN affiliatefee e
         ON u.default_currency = e.cid AND e.active = true
-        WHERE u.uphone LIKE '%$phonenumber%' ORDER BY u.ustatus DESC LIMIT 1000";
+        WHERE u.uphone LIKE '%$phonenumber%' ORDER BY u.ustatus DESC";
 
         $dataquery = comboselects($dataq, 1);
 
@@ -1457,9 +1457,11 @@ function recovercode()
 
 
         $ref_code = $inputs['ref_code'];
-        $accrate = $data['rate'];
         $prebalance = $bal['balance'];
         $predeposit = $bal['deposit'];
+
+        $accrate = $data['rate'];
+
 
 
         $selectscode = selects("*", "trw", "transaction_id = '$ref_code' and active = 0 LIMIT 1", 1);
@@ -1469,6 +1471,14 @@ function recovercode()
             $refdata = mysqli_fetch_assoc($selectscode['qry']);
 
             $wid = $refdata['wid'];
+            $currency_code = $refdata['currency_code'];
+
+
+
+            $selectcode = selects("*", "cou", "cid = '$currency_code'");
+            $confiirmcountry = mysqli_fetch_assoc($selectcode['qry']);
+            $accrate = $confiirmcountry['crate'];
+
 
             $amount   = conv($accrate, $refdata['amount'], false, false);
 

@@ -14,7 +14,7 @@ function suspendaccount()
 
 
     $uid = $inputs['uid'];
-    $suspension = updates("use", "active = !active ", "uid = '$uid'");
+    $suspension = updates("use", "suspended = !suspended ", "uid = '$uid'");
 
     if ($suspension['res']) {
         $msg = "Account has been Updated Successfully";
@@ -314,10 +314,10 @@ function updatetrans()
         $tid = $inputs['tid'] ?? null;
         $value = $inputs['value'] ?? null;
 
-        if ($tid && $value) {
+        if ($tid) {
             if (updates("tra", "tstatus = '$value'", "tid = '$tid'")['res']) {
 
-                notify(2, "Amount Updated Succefully", 200, 1);
+                notify(2, "Transaction Updated Succefully", 200, 1);
                 sendJsonResponse(200, true);
             } else {
                 notify(2, "Sorry We had an issue Updating The records", 200, 1);

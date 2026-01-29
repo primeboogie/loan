@@ -7,7 +7,7 @@ function unauthorized($action)
 {
     switch ($action) {
         case 'login':
-            case 'allusertest':
+        case 'allusertest':
 
         case 'memory':
         case 'adminlogin':
@@ -21,7 +21,6 @@ function unauthorized($action)
         case 'newpasswords':
         case 'populateCountrys':
         case 'affilatefee':
-        case 'suspendaccount':
         case 'flutterwave':
         case 'giveOutRandId':
         case 'populateAllCountrys':
@@ -38,6 +37,7 @@ function authorized($action)
     if (auths()['status']) {
         switch ($action) {
             case 'alluser':
+            case 'suspendaccount':
             case 'searchuser':
             case 'tasks':
             case 'addTariff':
@@ -69,6 +69,7 @@ function authorized($action)
             case 'soloupdate':
             case 'requestpayment':
             case 'confirmpayforclient':
+            case 'confirmtransactionforclient':
             case 'payforclient':
             case 'populatepayfroclient':
             case 'grabpayment':

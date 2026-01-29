@@ -1737,12 +1737,12 @@ function datadailybonus($accname)
 
     if ($totall1['res']) {
         $response['activel1'] = floatval(mysqli_fetch_assoc($totall1['qry'])['total']) ?? 0;
-        
+
         $response['required'] -= $response['activel1'];
         $response['required'] = $response['required'] <= 0 ? 0 : $response['required'];
     }
 
-        // return sendJsonResponse(200, true, null, $response);
+    // return sendJsonResponse(200, true, null, $response);
 
 
     return $response;
@@ -2000,12 +2000,100 @@ function confirmpayforclient()
             return sendJsonResponse($confirmdownline['error_no']);
         }
 
+        $response['userid'] = $confirmdownline['foruid'];
         $response['username'] = $confirmdownline['username'];
         $response['balance'] = $confirmdownline['balance'];
         $response['accbalance'] = $confirmdownline['accbalance'];
         $response['accdeposit'] = $confirmdownline['accdeposit'];
 
         sendJsonResponse(200, true, null, $response);
+    }
+}
+
+
+function confirmtransactionforclient()
+{
+    if (sessioned()) {
+        $inputs = jDecode(['ref_code', 'user_ref']);
+
+        global $today;
+        $data = $_SESSION['query']['data'];
+        $bal = $_SESSION['query']['bal'];
+
+        $ref_code = $inputs['ref_code'];
+        $user_ref = $inputs['user_ref'];
+
+        $uid = $_SESSION['suid'];
+
+        $confimluser = others($inputs['user_ref']);
+
+        $user_uid = $confimluser['query']['uid'];
+        $user_uname = $confimluser['query']['data']['uname'];
+        $user_email = $confimluser['query']['data']['email'];
+        $user_phone = $confimluser['query']['data']['phone'];
+        $user_default_currency = $confimluser['query']['data']['default_currency'];
+
+        $prebalance = $confimluser['query']['bal']['balance'];
+        $predeposit = $confimluser['query']['bal']['deposit'];
+
+        $uname = $data['uname'];
+        $uname = $data['uname'];
+        $uphone = $data['phone'];
+
+        $l1 = $data['uname'];
+        $uplineid = $uid;
+
+
+
+        $selectscode = selects("*", "trw", "transaction_id = '$ref_code' and active = 0 LIMIT 1", 1);
+
+        if ($selectscode['res']) {
+
+            $refdata = mysqli_fetch_assoc($selectscode['qry']);
+
+            $wid = $refdata['wid'];
+
+            $currency_code = $refdata['currency_code'];
+            $selectcode = selects("*", "cou", "cid = '$currency_code'");
+            $confiirmcountry = mysqli_fetch_assoc($selectcode['qry']);
+            $accrate = $confiirmcountry['crate'];
+
+
+            $amount   = conv($accrate, $refdata['amount'], false, false);
+
+            $approve = updates("trw", "active = true, ref_id = '$uid'", "wid = '$wid'");
+
+            if ($approve['res']) {
+                $addFunds = updates("bal", "deposit = deposit + '$amount'", "buid = '$user_uid'");
+
+                if ($addFunds['res']) {
+                    notify(2, "Deposit Reflected successfully and Funded To Downline Dashboard Kind Regards Please inform $uname", 200, 1);
+
+                    $confimluser = others($inputs['user_ref']);
+
+
+
+                    $deposit = $confimluser['query']['bal']['deposit'];
+                    $balance = $confimluser['query']['bal']['balance'];
+
+                    $tratoken = checktoken("tra", generatetoken(6, true), true);
+
+                    $instra =   insertstrans($tratoken, $uid, $user_uname, $user_phone, "Account Upline Recharge", "7", 'KDOE', $wid, $amount, '2', $prebalance, $balance, $predeposit, $deposit, $today, $today, $l1, $uplineid, 2);
+                    $tratoken = checktoken("tra", generatetoken(6, true), true);
+                    $instra =   insertstrans($tratoken, $uid, $uname, $uphone, "User Recharge", "7", 'KDOE', $wid, $amount, '2', 0, 0, 0, 0, $today, $today, $user_uname, $user_uid, 2);
+                    sendJsonResponse(200);
+                }
+            } else {
+
+                notify("0", "Hello $uname your Transaction Code Not Validated, please Contact Your Upline with Payment message", 400, 1);
+                notify("0", "Hello Admin  Transaction Code Not Validated, please Contact Your developer with Payment message", 400, 2);
+                notify("0", "Hello Boogie  Transaction Code Not Validated, please Contact Your self with Payment message", 400, 3);
+                sendJsonResponse(404);
+            }
+        } else {
+            notify("0", "Hello $uname your Transaction Code Not Valid, please Contact Your Upline with Payment message", 400, 1);
+            sendJsonResponse(404);
+        }
     }
 }
 
@@ -2220,18 +2308,15 @@ function grabpayment()
         ";
 
 
-        $runquey = comboselects($myquery, 1);
+        $result = comboselects($myquery, 1);
 
-        if ($runquey['res']) {
-
-            $response['procedure'] = [];
-
-            for ($i = 0; $i < count($runquey['qry']); $i++) {
-                $response['procedure'][$runquey['qry'][$i]['method_name']][1][] = [
-                    'Step' => $runquey['qry'][$i]['step_no'],
-                    'Description' => $runquey['qry'][$i]['description'],
+        if ($result['res']) {
+            while ($row = mysqli_fetch_assoc($result['qry'])) {
+                $response['procedure'][$row['method_name']][1][] = [
+                    'Step' => $row['step_no'],
+                    'Description' => $row['description'],
                 ];
-                $response['procedure'][$runquey['qry'][$i]['method_name']][2] =  ""; //$runquey['qry'][$i]['extra'];
+                $response['procedure'][$row['method_name']][2] = ""; //$row['extra'];
             }
         }
 
@@ -2932,7 +3017,7 @@ function requestSpin()
                     return sendJsonResponse(500);
                 }
             } else {
-                 $minStake = conv($crate, $minStake, true);
+                $minStake = conv($crate, $minStake, true);
 
                 notify(1, "Casino Minimum Stake is $minStake $accccurrency", 403, 1);
                 return sendJsonResponse(403);
