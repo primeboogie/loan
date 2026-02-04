@@ -2510,9 +2510,37 @@ Your Withdrawal of $amount is being processed and you will receive your funds in
                     notify(2, $msg, 200, 1);
 
 
-                    $sbj = "WITHDRAWAL SUCCESSFUL";
-                    $msge = "Hello $uname 👋, 
-                    Your Payment Request of $amount Has Been Sent! Payment Will be Processed After Successful Verification On Time.";
+                    $sbj = "WITHDRAWAL SUCCESSFUL ✅";
+                    $req_num = round(conv($crate, $requested, true, false));
+                    $req_fmt = number_format($req_num);
+                    $charge_fmt = number_format($charge);
+                    $total_fmt = number_format($req_num + $charge);
+                    $msge = "
+                    <p style='font-size: 15px; color: #555;'>Your Payment Request of <strong>$amount</strong> Has Been Sent! Payment Will be Processed After Successful Verification On Time.</p>
+                    <p style='font-size: 15px; margin-top: 10px;'><strong>Receipt No. :</strong> $token</p>
+                    <table style='width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 14px;'>
+                        <thead>
+                            <tr style='background-color: #f8f9fa;'>
+                                <th style='text-align: left; padding: 10px; border-bottom: 2px solid #a24cd2;'>Description</th>
+                                <th style='text-align: right; padding: 10px; border-bottom: 2px solid #a24cd2;'>Amounts - $ccurrency</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style='padding: 10px; border-bottom: 1px solid #eee;'>Requested</td>
+                                <td style='text-align: right; padding: 10px; border-bottom: 1px solid #eee;'>$req_fmt</td>
+                            </tr>
+                            <tr>
+                                <td style='padding: 10px; border-bottom: 1px solid #eee;'>Charges</td>
+                                <td style='text-align: right; padding: 10px; border-bottom: 1px solid #eee;'>$charge_fmt</td>
+                            </tr>
+                            <tr>
+                                <td style='padding: 10px; border-top: 2px solid #a24cd2; font-weight: bold;'>Total</td>
+                                <td style='text-align: right; padding: 10px; border-top: 2px solid #a24cd2; font-weight: bold;'>$total_fmt</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <p style='text-align: center; margin-top: 20px; font-size: 15px;'>Thank you for choosing us 🙏</p>";
                     sendmail($uname, $data['email'], $msge, $sbj);
                     return sendJsonResponse(200);
                 } else {

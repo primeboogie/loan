@@ -1813,20 +1813,18 @@ function activateaccount($notify = true)
 
                             $sbj = "Level-1 Earnings";
                             $msg = "
-                             <strong>You've Just Earned $l1feeconv from $accname</strong>  <br>
+                             <strong>You've Just Earned $l1feeconv , Congratulations🎉🎉</strong>  <br> <br>
 
-                                Visit your dashboard to see your earnings and work smarter for more .
-
-                                <a href='$domain'>  Login Here</a> <br>
-
-                                Keep up the great work and continue earning big with ZanyTech! 
+                             <li> Earned from - $accname </li> <br>
+                             Visit your dashboard here to see your earnings
+                                Keep up the great work and continue earning more with $company Connections. <br>
                             ";
                             if ($l1default_currency == 'KEST') {
 
                                 $l1sms = "Great news! 
-You have Just Earned $l1feeconv from $accname 
-Login Here to check dashboard: $domain 
-Keep Earning with EarnPower!";
+    You have Just Earned $l1feeconv from $accname 
+    Login Here to check dashboard: $domain 
+    Keep Earning with EarnPower!";
                                 sendsms($l1phone, $l1sms);
                             }
                             sendmail($l1, $l1email, $msg, $sbj);
@@ -1857,14 +1855,14 @@ Keep Earning with EarnPower!";
 
                         if ($accupdate['res']) {
                             $sbj = "Level-2 Earnings";
+
+
                             $msg = "
-                             <strong>   You've Just Earned $l2feeconv from $l1</strong>  <br>
+                             <strong>You've Just Earned $l2feeconv , Congratulations🎉🎉</strong>  <br> <br>
 
-                                Visit your dashboard to see your earnings and work smarter for more .
-
-                                <a href='$domain'> Login Here</a> <br>
-
-                                Keep up the great work and continue earning big with ZanyTech! 
+                             <li> Earned from - $l1 </li> <br>
+                             Visit your dashboard here to see your earnings
+                                Keep up the great work and continue earning more with $company Connections. <br>
                             ";
                             sendmail($l2, $l2email, $msg, $sbj);
                         }
@@ -1897,14 +1895,14 @@ Keep Earning with EarnPower!";
 
                         if ($accupdate['res']) {
                             $sbj = "Level-3 Earnings";
+
+
                             $msg = "
-                             <strong> You've Just Earned $l3feeconv from $l2</strong>  <br>
+                             <strong>You've Just Earned $l3feeconv , Congratulations🎉🎉</strong>  <br> <br>
 
-                                Visit your dashboard to see your earnings and work smarter for moree .
-
-                                <a href='$domain'> Login Here</a> <br>
-
-                                Keep up the great work and continue earning big with ZanyTech! 
+                             <li> Earned from - $l2 </li> <br>
+                             Visit your dashboard here to see your earnings
+                                Keep up the great work and continue earning more with $company Connections. <br>
                             ";
                             sendmail($l3, $l3email, $msg, $sbj);
                         }
