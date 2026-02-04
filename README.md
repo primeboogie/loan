@@ -25,7 +25,7 @@ drop box for wallet
 
 
 
-## ADD DEVICES
+<!-- ## ADD DEVICES -->
 
 
-## EMAIL SETUP
+<!-- ## EMAIL SETUP -->
