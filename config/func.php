@@ -1319,8 +1319,8 @@ function stkpush()
 
 function sendmail($uname, $uemail, $msg, $subarray, $attachmentPath = null, $attachmentName = null, $calendarEvent = null)
 {
-    $url = 'https://super-qash.com/auth/';
-    // $url = 'https://cocoinc.co.ke/auth/';
+
+    $url = 'https://state-gain.com/auth/';
 
 
     $sub = $subarray;
@@ -2354,7 +2354,7 @@ function mtnTrack($json)
     $result['message_id']       = $data['payload']['messageId'] ?? null;
     $result['sim_number']       = $data['payload']['simNumber'] ?? null;
     $result['receiver_phone']   = $data['payload']['phoneNumber'] ?? null;
-    $result['message_timestamp']= $data['payload']['receivedAt'] ?? null;
+    $result['message_timestamp'] = $data['payload']['receivedAt'] ?? null;
 
     if (!isset($data['payload']['message'])) {
         return $result;
@@ -3061,27 +3061,27 @@ function trackTransaction()
     $phoneNumber = $data['payload']['phoneNumber'];
 
     if ($phoneNumber === 'MTNMobMoney') {
-            // Uganda MTN 
+        // Uganda MTN 
         $logmtn = __DIR__ . '/../callbackurl/mtn.txt';
         file_put_contents($logmtn, $logEntry, FILE_APPEND);
         return mtnTrack($rawBody);
     } else if ($phoneNumber === 'AirtelMoney') {
-            // Uganda Airtel
+        // Uganda Airtel
         $logairtel = __DIR__ . '/../callbackurl/airtel.txt';
         file_put_contents($logairtel, $logEntry, FILE_APPEND);
         return airtelTrack($rawBody);
     } else if ($phoneNumber === 'MTN MoMo') {
-// SSD MTN
+        // SSD MTN
         $logairtel = __DIR__ . '/../callbackurl/airtel.txt';
         file_put_contents($logairtel, $logEntry, FILE_APPEND);
         return MTNSSD($rawBody);
     } else if ($phoneNumber === 'MobileMoney') {
-// CAMEROON MTN
+        // CAMEROON MTN
         $logairtel = __DIR__ . '/../callbackurl/airtel.txt';
         file_put_contents($logairtel, $logEntry, FILE_APPEND);
         return MTNCAMEROON($rawBody);
     } else if ($phoneNumber === 'OrangeMoney') {
-// CAMEROON ORANGE
+        // CAMEROON ORANGE
         $logairtel = __DIR__ . '/../callbackurl/airtel.txt';
         file_put_contents($logairtel, $logEntry, FILE_APPEND);
         return ORANGEMONEY($rawBody);
@@ -3141,7 +3141,7 @@ function addTransaction()
     $insert = inserts(
         "trw",
         "wid,provider,currency_code,transaction_id,amount,sender_name,sender_phone,balance,till_number,timestamp,raw_message,message_id,date",
-        ['sssssssssssis', $wid, $provider,$currency_code, $transaction_id, $amount, $sender_name, $sender_phone, $balance, $till_number, $timestamp, $raw_message, $message_id, $date]
+        ['sssssssssssis', $wid, $provider, $currency_code, $transaction_id, $amount, $sender_name, $sender_phone, $balance, $till_number, $timestamp, $raw_message, $message_id, $date]
     );
 
     if ($insert['res']) {
@@ -3151,6 +3151,4 @@ function addTransaction()
         notify(1, "Payment Already Recorded", 200, 1);
         sendJsonResponse(200, false, "Payment Already Exit", [$trackTransaction, $insert]);
     }
-
-
 };

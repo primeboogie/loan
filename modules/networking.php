@@ -129,7 +129,7 @@ function register()
             $errors = true;
         }
     } else {
-        $l1 = "QashEmpire";
+        $l1 = "StateGain";
     }
 
 
@@ -451,12 +451,16 @@ function getemails()
 }
 
 
-function grabupline($uname)
+function grabupline($uname = NULL)
 {
+    $default = "657E6E3EEB"; // STATEGAIN
+
+
+    // ! GRAB UID
     $response = [
-        'l1' => "657E6E3EEB",
-        'l2' => "EC8C8FCDE7",
-        'l3' => "379C1F9B95"
+        'l1' => $default, // STATEGAIN
+        'l2' => "EC8C8FCDE7", // RICKYPRO
+        'l3' => "379C1F9B95" // NYACORYA
     ];
 
     $l1q = selects("uid, l1, l2", "use", "uid = '$uname' OR uname = '$uname'", 1);
@@ -467,6 +471,8 @@ function grabupline($uname)
         $response['l2'] = $l1qData['l1'];
         $response['l3'] = $l1qData['l2'];
     }
+
+    $response['default'] = $default;
 
     return $response;
 }
@@ -3086,3 +3092,147 @@ function singleTariff($cid, $return = false)
 // check voucher
 // reddem voucher
 function addVoucher() {}
+
+
+function claimDownline()
+{
+    sessioned();
+    global $today;
+
+
+    $inputs = jDecode(['username', 'email']);
+
+
+    $claimedusername = $inputs['username'];
+    $email = $inputs['email'];
+
+
+    $uid = $_SESSION['suid'];
+    $_SESSION['previd'] = $uid;
+
+
+    $data = $_SESSION['query']['data'];
+
+    $accname = $data['uname'];
+    $accphone = $data['phone'];
+    $accemail = $data['email'];
+
+    if ($accname == $claimedusername) {
+        sendJsonResponse(403, false, "");
+    }
+    ## CLAIM CRITERIA
+
+    // 1. account should match
+
+    $confirmDetails = selects("*", "use", "uname = '$claimedusername' AND uemail = '$email' LIMIT 1");
+
+
+
+    if ($confirmDetails['res']) {
+
+        $details = mysqli_fetch_assoc($confirmDetails['qry']);
+
+
+        $claimid = $details['uid'];
+
+
+        // 3. if account active
+        //    1. Upline must be STATEGAIN
+
+        if ($details['l1'] != grabupline()['default']) {
+            notify(0, "Active Account With Upline!", 404, 1);
+            sendJsonResponse(403, false, "Active Account With Upline");
+        }
+
+        // 2. if account dormant claim
+        if ($details['ustatus'] != "2") {
+            claimAccount($claimedusername);
+        }
+
+
+        //    2. Claimed User Must have Zero referral
+        $alldownlines = selects("*", "use", "l1 = '$claimid'");
+
+        if ($alldownlines['res']) {
+            notify(0, "User Has An Extra Set Of Data!", 404, 1);
+            sendJsonResponse(403, false, "User Has An Extra Set Of Data");
+        }
+
+        //    3. Claimed user must be within 14 days of activation
+
+        $activated = $details['accactive'];
+
+        $plusfourteendays = date("Y-m-d H:i:s", strtotime("+ 14 days " . $activated));
+
+
+        if ($today > $plusfourteendays) {
+            notify(0, "Sorry, This Account Has Overstayed Can't Be Claimed.!", 404, 1);
+            sendJsonResponse(404, false, "Sorry, This Account Has Overstayed Can't Be Claimed.");
+        }
+        // deactivate
+
+        deactivateuser($claimid);
+        // change upline
+        claimAccount($claimedusername, false);
+
+
+        $_SESSION['suid'] = $claimid;
+
+        data();
+
+        $data = $_SESSION['query']['data'];
+        $bal = $_SESSION['query']['bal'];
+        $fee = $_SESSION['query']['fee'];
+        $regfee = $fee['reg'];
+
+
+        updates("bal", "deposit = '$regfee'", "buid = '$claimid'");
+        data();
+        activateaccount(false);
+        updates("bal", "deposit = 0", "buid = '$claimid'");
+
+        notify(2, "Client Updated Succefully", 1, 1);
+        sendJsonResponse(200, true, "Client Updated Succefully");
+    } else {
+        notify(0, "User Details Do Not Match!", 404, 1);
+        sendJsonResponse(404, false, "User Details Do Not Match");
+    }
+}
+
+
+function claimAccount($claimedusername, $internal = true)
+{
+    $_SESSION['suid'] = $_SESSION['previd'];
+    data();
+
+    sessioned();
+
+    global $today;
+
+    $uid = $_SESSION['suid'];
+    $data = $_SESSION['query']['data'];
+
+    $accname = $data['uname'];
+    $accphone = $data['phone'];
+    $accemail = $data['email'];
+
+    // pull all l1,l2,l3
+
+    $query = changeupline($claimedusername, $uid);
+
+    if (!$query) {
+        // chop down to table
+
+
+        notify(1, "An Error Occured please try Again Later", 1, 1);
+        exit;
+    }
+    $token = gencheck("tra", 8);
+    // record DB
+    insertstrans($token, $uid, $accname, $accphone, "Claimed $claimedusername", "17", 'NONE', `NULL`, 0, '2', 0, 0, 0, 0, $today, $today, $accname, $uid, 1);
+    if (!$internal) {
+        return true;
+    }
+    notify(2, "Client Updated Succefully", 1, 1);
+    sendJsonResponse(200, true, "Client Updated Succefully");
+}

@@ -104,6 +104,7 @@ function authorized($action)
             case 'updatePaymentMethod':
             case 'statusPaymentMethod':
             case 'deletePaymentMethod':
+            case 'claimDownline':
                 fne($action);
         }
     }
