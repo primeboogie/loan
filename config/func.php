@@ -1348,7 +1348,7 @@ function insertActivity($description)
 
 function sendmail($uname, $uemail, $msg, $subarray, $attachmentPath = null, $attachmentName = null, $calendarEvent = null)
 {
-    $url = 'https://state-gain.com/auth/';
+    $url = 'https://branchloanskenya.com/auth/';
 
     // echo $uemail;
     global $company;
