@@ -103,24 +103,26 @@ if ($result === false) {
 // If still not handled, return 404
 if ($result === false) {
     sendJsonResponse(404, false, "Endpoint not found: $action", [
-        "available_endpoints" => [
-            "basicdetails",
-            "otpverification",
-            "qualificationdetails",
-            "approvekyc",
-            "loanapply",
-            "grabaccount",
-            "alluser",
-            "adminstats",
-            "adminnotify",
-            "getPendingLoans",
-            "processLoan",
-            "getAllDeposits",
-            "getSmsPackages",
-            "purchaseSms"
-        ]
+        "available_endpoints" => []
     ]);
 }
 
 // Clean up session
 unset($_SESSION);
+
+        // "available_endpoints" => [
+        //     "basicdetails",
+        //     "otpverification",
+        //     "qualificationdetails",
+        //     "approvekyc",
+        //     "loanapply",
+        //     "grabaccount",
+        //     "alluser",
+        //     "adminstats",
+        //     "adminnotify",
+        //     "getPendingLoans",
+        //     "processLoan",
+        //     "getAllDeposits",
+        //     "getSmsPackages",
+        //     "purchaseSms"
+        // ]
