@@ -71,26 +71,26 @@ if (empty($action)) {
 $action = preg_replace('/[^a-zA-Z0-9_]/', '', $action);
 
 // No action specified
-if (empty($action)) {
-    sendJsonResponse(200, true, "Branch Emergency Loans API v1.0", [
-        "message" => "Welcome to Branch Emergency Loans API",
-        "tagline" => "Get Your Loan in Less Than 3 Hours!",
-        "endpoints" => [
-            "POST /api/basicdetails" => "Register new user",
-            "POST /api/otpverification" => "Verify OTP",
-            "POST /api/qualificationdetails" => "Complete profile",
-            "POST /api/approvekyc" => "KYC verification payment",
-            "POST /api/loanapply" => "Apply for loan",
-            "POST /api/grabaccount" => "Login / Get account",
-            "GET /api/alluser" => "Get all users (Admin)",
-            "GET /api/adminstats" => "Dashboard stats (Admin)",
-            "GET /api/getAllDeposits" => "Get all deposits (Admin)",
-            "GET /api/getSmsPackages" => "Get SMS packages & balance (Admin)",
-            "POST /api/purchaseSms" => "Purchase SMS credits (Admin)",
-        ],
-        "documentation" => "See README.md for full API documentation"
-    ]);
-}
+// if (empty($action)) {
+//     sendJsonResponse(200, true, "Branch Emergency Loans API v1.0", [
+//         "message" => "Welcome to Branch Emergency Loans API",
+//         "tagline" => "Get Your Loan in Less Than 3 Hours!",
+//         "endpoints" => [
+//             "POST /api/basicdetails" => "Register new user",
+//             "POST /api/otpverification" => "Verify OTP",
+//             "POST /api/qualificationdetails" => "Complete profile",
+//             "POST /api/approvekyc" => "KYC verification payment",
+//             "POST /api/loanapply" => "Apply for loan",
+//             "POST /api/grabaccount" => "Login / Get account",
+//             "GET /api/alluser" => "Get all users (Admin)",
+//             "GET /api/adminstats" => "Dashboard stats (Admin)",
+//             "GET /api/getAllDeposits" => "Get all deposits (Admin)",
+//             "GET /api/getSmsPackages" => "Get SMS packages & balance (Admin)",
+//             "POST /api/purchaseSms" => "Purchase SMS credits (Admin)",
+//         ],
+//         "documentation" => "See README.md for full API documentation"
+//     ]);
+// }
 
 // Try public routes first
 $result = unauthorized($action);

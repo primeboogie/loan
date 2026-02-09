@@ -2,6 +2,8 @@
 
 error.log
 
+
+.htaccess
 config/.env
 config/config.php
 
