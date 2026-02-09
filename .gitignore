@@ -2,6 +2,7 @@
 
 error.log
 
+*.log
 
 .htaccess
 config/.env
