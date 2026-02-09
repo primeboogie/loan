@@ -1,20 +1,10 @@
 <?php
-
-/**
- * Branch Emergency Loans - API Router
- * Main entry point for all API requests
- *
- * Usage:
- *   GET/POST /index.php?action=basicdetails
- *   GET/POST /api/basicdetails (with .htaccess rewrite)
- */
-
 // CORS Headers - Allow cross-origin requests
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: GET, POST, PUT, PATCH, DELETE, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Admin-Key, x-admin-key");
 header("Access-Control-Max-Age: 86400");
-header("Access-Control-Allow-Credentials: true"); 
+// header("Access-Control-Allow-Credentials: true"); 
 
 // Handle preflight OPTIONS request
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
