@@ -4,8 +4,12 @@
 <IfModule mod_rewrite.c>
     RewriteEngine On
 
-    # Set base directory
-    RewriteBase /branchkenya/
+    # Set base directory - use / for production, /branchkenya/ for local dev
+    RewriteBase /
+
+    # Handle CORS preflight OPTIONS requests at Apache level
+    RewriteCond %{REQUEST_METHOD} OPTIONS
+    RewriteRule ^(.*)$ $1 [R=204,L]
 
     # Don't rewrite requests for actual files or directories
     RewriteCond %{REQUEST_FILENAME} !-f
@@ -31,7 +35,11 @@
     # Prevent clickjacking
     Header set X-Frame-Options "SAMEORIGIN"
 
-    # CORS Headers handled in PHP index.php to avoid duplicate headers
+    # CORS Headers - required for cross-origin API requests
+    Header always set Access-Control-Allow-Origin "*"
+    Header always set Access-Control-Allow-Methods "GET, POST, PUT, PATCH, DELETE, OPTIONS"
+    Header always set Access-Control-Allow-Headers "Content-Type, Authorization, X-Admin-Key, x-admin-key"
+    Header always set Access-Control-Max-Age "86400"
 </IfModule>
 
 # Prevent directory listing
@@ -58,5 +66,5 @@ Options -Indexes
 </IfModule>
 
 # Error handling
-ErrorDocument 404 /branchkenya/index.php
-ErrorDocument 500 /branchkenya/index.php
+ErrorDocument 404 /index.php
+ErrorDocument 500 /index.php
