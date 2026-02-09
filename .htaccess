@@ -1,0 +1,62 @@
+# Branch Emergency Loans - URL Rewrite Rules
+# Enables clean URLs like /api/basicdetails instead of /index.php?action=basicdetails
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Set base directory
+    RewriteBase /branchkenya/
+
+    # Don't rewrite requests for actual files or directories
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+
+    # Rewrite /api/action to index.php?action=action
+    RewriteRule ^api/([a-zA-Z0-9_]+)/?$ index.php?action=$1 [QSA,L]
+
+    # Rewrite /action to index.php?action=action (alternative without /api prefix)
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^([a-zA-Z0-9_]+)/?$ index.php?action=$1 [QSA,L]
+</IfModule>
+
+# Security Headers
+<IfModule mod_headers.c>
+    # Prevent MIME type sniffing
+    Header set X-Content-Type-Options "nosniff"
+
+    # XSS Protection
+    Header set X-XSS-Protection "1; mode=block"
+
+    # Prevent clickjacking
+    Header set X-Frame-Options "SAMEORIGIN"
+
+    # CORS Headers handled in PHP index.php to avoid duplicate headers
+</IfModule>
+
+# Prevent directory listing
+Options -Indexes
+
+# Protect sensitive files
+<FilesMatch "\.(env|log|sql|md)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# Allow access to specific files
+<FilesMatch "^(README\.md|FUNCTIONALITY\.md)$">
+    Order deny,allow
+    Allow from all
+</FilesMatch>
+
+# PHP Settings (if applicable)
+<IfModule mod_php.c>
+    php_value upload_max_filesize 10M
+    php_value post_max_size 10M
+    php_value max_execution_time 60
+    php_value memory_limit 128M
+</IfModule>
+
+# Error handling
+ErrorDocument 404 /branchkenya/index.php
+ErrorDocument 500 /branchkenya/index.php

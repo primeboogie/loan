@@ -1,0 +1,502 @@
+{
+	"info": {
+		"_postman_id": "branch-emergency-loans-api",
+		"name": "Branch Emergency Loans API",
+		"description": "Complete API collection for Branch Emergency Loans - Kenya's fastest loan application platform. Get your loan in less than 3 hours!",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost/branchkenya"
+		},
+		{
+			"key": "session_id",
+			"value": ""
+		}
+	],
+	"item": [
+		{
+			"name": "Client Flow",
+			"description": "Step-by-step client registration and loan application flow",
+			"item": [
+				{
+					"name": "Step 1: Basic Registration",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"fullname\": \"John Kamau Mwangi\",\n    \"email\": \"john.kamau@example.com\",\n    \"phone\": \"0712345678\",\n    \"nin\": \"12345678\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/basicdetails",
+							"host": ["{{base_url}}"],
+							"path": ["basicdetails"]
+						},
+						"description": "Register a new user with basic details. Returns a session_id for subsequent requests."
+					},
+					"response": [
+						{
+							"name": "Success Response",
+							"status": "Created",
+							"code": 201,
+							"body": "{\n    \"status\": 201,\n    \"resultcode\": true,\n    \"msg\": \"Registration successful! Check your email for verification.\",\n    \"data\": {\n        \"session_id\": \"a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6\",\n        \"user_id\": 1,\n        \"email\": \"john.kamau@example.com\"\n    },\n    \"info\": [\n        {\n            \"state\": 2,\n            \"color\": \"#24db14\",\n            \"msg\": \"Registration successful! Please check your email for the verification code.\",\n            \"icon\": \"<i class='fa-solid fa-check'></i>\"\n        }\n    ]\n}"
+						}
+					]
+				},
+				{
+					"name": "Step 2a: Verify OTP",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"session_id\": \"{{session_id}}\",\n    \"otp\": \"123456\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/otpverification",
+							"host": ["{{base_url}}"],
+							"path": ["otpverification"]
+						},
+						"description": "Verify the OTP sent to user's email"
+					},
+					"response": [
+						{
+							"name": "Success Response",
+							"status": "OK",
+							"code": 200,
+							"body": "{\n    \"status\": 200,\n    \"resultcode\": true,\n    \"msg\": \"Account verified successfully!\",\n    \"data\": {\n        \"session_id\": \"a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6\",\n        \"verified\": true\n    },\n    \"info\": [\n        {\n            \"state\": 2,\n            \"color\": \"#24db14\",\n            \"msg\": \"Account verified successfully! Continue to complete your profile.\",\n            \"icon\": \"<i class='fa-solid fa-check'></i>\"\n        }\n    ]\n}"
+						}
+					]
+				},
+				{
+					"name": "Step 2b: Resend OTP",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"session_id\": \"{{session_id}}\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/otpverification",
+							"host": ["{{base_url}}"],
+							"path": ["otpverification"]
+						},
+						"description": "Resend OTP to user's email"
+					},
+					"response": [
+						{
+							"name": "Success Response",
+							"status": "OK",
+							"code": 200,
+							"body": "{\n    \"status\": 200,\n    \"resultcode\": true,\n    \"msg\": \"New verification code sent to your email.\",\n    \"info\": [\n        {\n            \"state\": 2,\n            \"color\": \"#24db14\",\n            \"msg\": \"A new verification code has been sent to your email.\",\n            \"icon\": \"<i class='fa-solid fa-check'></i>\"\n        }\n    ]\n}"
+						}
+					]
+				},
+				{
+					"name": "Step 3: Qualification Details",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"session_id\": \"{{session_id}}\",\n    \"age\": 30,\n    \"residential\": \"Westlands, Nairobi\",\n    \"occupation\": \"Software Developer\",\n    \"next_kin\": \"Jane Wanjiku - 0723456789\",\n    \"phone_disbursment\": \"0712345678\",\n    \"bank_account\": \"Equity Bank\",\n    \"bank_number\": \"0123456789012\",\n    \"current_salary\": 85000\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/qualificationdetails",
+							"host": ["{{base_url}}"],
+							"path": ["qualificationdetails"]
+						},
+						"description": "Complete user profile with employment and banking details. Returns pre-qualified loan amount based on salary."
+					},
+					"response": [
+						{
+							"name": "Success Response",
+							"status": "OK",
+							"code": 200,
+							"body": "{\n    \"status\": 200,\n    \"resultcode\": true,\n    \"msg\": \"Profile updated successfully!\",\n    \"data\": {\n        \"session_id\": \"a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6\",\n        \"pre_qualified\": true,\n        \"min_loan\": 42500,\n        \"max_loan\": 255000,\n        \"next_step\": \"kyc_verification\"\n    },\n    \"info\": [\n        {\n            \"state\": 2,\n            \"color\": \"#24db14\",\n            \"msg\": \"Profile updated! You're pre-qualified for KES 42,500 - 255,000.\",\n            \"icon\": \"<i class='fa-solid fa-check'></i>\"\n        }\n    ]\n}"
+						}
+					]
+				},
+				{
+					"name": "Step 4: KYC Verification Payment",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"session_id\": \"{{session_id}}\",\n    \"phone\": \"0712345678\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/approvekyc",
+							"host": ["{{base_url}}"],
+							"path": ["approvekyc"]
+						},
+						"description": "Pay KES 99 KYC verification fee via M-Pesa STK Push"
+					},
+					"response": [
+						{
+							"name": "STK Push Initiated",
+							"status": "OK",
+							"code": 200,
+							"body": "{\n    \"status\": 200,\n    \"resultcode\": true,\n    \"msg\": \"Please check your phone and enter your M-Pesa PIN to complete the verification payment.\",\n    \"data\": {\n        \"session_id\": \"a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6\",\n        \"ref\": \"TXN1234ABCD\",\n        \"status\": \"pending\"\n    },\n    \"info\": [\n        {\n            \"state\": 0,\n            \"color\": \"orange\",\n            \"msg\": \"Please check your phone and enter your M-Pesa PIN to complete the payment.\",\n            \"icon\": \"<i class='fa-solid fa-circle-exclamation'></i>\"\n        }\n    ]\n}"
+						},
+						{
+							"name": "Payment Successful",
+							"status": "OK",
+							"code": 200,
+							"body": "{\n    \"status\": 200,\n    \"resultcode\": true,\n    \"msg\": \"Verification complete! You're ready to apply for a loan.\",\n    \"data\": {\n        \"session_id\": \"a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6\",\n        \"verified\": true,\n        \"ref\": \"TXN1234ABCD\",\n        \"next_step\": \"loan_application\"\n    },\n    \"info\": [\n        {\n            \"state\": 2,\n            \"color\": \"#24db14\",\n            \"msg\": \"KYC verification successful! You can now apply for your loan.\",\n            \"icon\": \"<i class='fa-solid fa-check'></i>\"\n        }\n    ]\n}"
+						}
+					]
+				},
+				{
+					"name": "Step 5: Apply for Loan",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"session_id\": \"{{session_id}}\",\n    \"amount_requested\": 50000,\n    \"duration\": 3,\n    \"phone\": \"0712345678\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/loanapply",
+							"host": ["{{base_url}}"],
+							"path": ["loanapply"]
+						},
+						"description": "Apply for a loan. Pays processing fee (2% of loan amount, min KES 100) via M-Pesa."
+					},
+					"response": [
+						{
+							"name": "Loan Approved",
+							"status": "OK",
+							"code": 200,
+							"body": "{\n    \"status\": 200,\n    \"resultcode\": true,\n    \"msg\": \"Loan approved! Your funds will be disbursed within 3 hours.\",\n    \"data\": {\n        \"session_id\": \"a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6\",\n        \"loan_id\": 1,\n        \"loan_amount\": 50000,\n        \"loan_fee\": 7500,\n        \"duration\": 3,\n        \"monthly_payment\": 19166.67,\n        \"total_repayment\": 57500,\n        \"status\": \"pending_disbursement\",\n        \"ref\": \"TXN5678EFGH\"\n    },\n    \"info\": [\n        {\n            \"state\": 2,\n            \"color\": \"#24db14\",\n            \"msg\": \"Loan approved! KES 50,000 will be disbursed within 3 hours.\",\n            \"icon\": \"<i class='fa-solid fa-check'></i>\"\n        }\n    ]\n}"
+						}
+					]
+				},
+				{
+					"name": "Login / Get Account",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nin\": \"12345678\",\n    \"email\": \"john.kamau@example.com\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/grabaccount",
+							"host": ["{{base_url}}"],
+							"path": ["grabaccount"]
+						},
+						"description": "Login and retrieve account details using National ID and email"
+					},
+					"response": [
+						{
+							"name": "Success Response",
+							"status": "OK",
+							"code": 200,
+							"body": "{\n    \"status\": 200,\n    \"resultcode\": true,\n    \"msg\": \"Account retrieved successfully.\",\n    \"data\": {\n        \"session_id\": \"new_session_id_generated\",\n        \"user\": {\n            \"id\": 1,\n            \"full_name\": \"John Kamau Mwangi\",\n            \"email\": \"john.kamau@example.com\",\n            \"phone\": \"+254712345678\",\n            \"kyc_verified\": true,\n            \"joined\": \"2024-01-15 10:30:00\"\n        },\n        \"loans\": [\n            {\n                \"loan_id\": 1,\n                \"amount\": 50000,\n                \"fee\": 7500,\n                \"duration\": 3,\n                \"status\": \"Pending Disbursement\",\n                \"status_code\": 2,\n                \"created_at\": \"2024-01-15 11:00:00\"\n            }\n        ],\n        \"transactions\": [\n            {\n                \"ref\": \"TXN1234ABCD\",\n                \"amount\": 99,\n                \"type\": \"deposit\",\n                \"description\": \"KYC Verification Fee\",\n                \"status\": \"Completed\",\n                \"date\": \"2024-01-15 10:45:00\"\n            }\n        ],\n        \"notifications\": [\n            {\n                \"id\": 1,\n                \"message\": \"Your loan of KES 50,000 has been approved!\",\n                \"date\": \"2024-01-15 11:00:00\"\n            }\n        ],\n        \"loan_summary\": {\n            \"total_loans\": 1,\n            \"active_loans\": 1,\n            \"total_borrowed\": 50000\n        }\n    },\n    \"info\": [\n        {\n            \"state\": 2,\n            \"color\": \"#24db14\",\n            \"msg\": \"Account retrieved successfully. Welcome back, John Kamau Mwangi!\",\n            \"icon\": \"<i class='fa-solid fa-check'></i>\"\n        }\n    ]\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Admin Panel",
+			"description": "Admin dashboard and management endpoints",
+			"item": [
+				{
+					"name": "Get All Users",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/alluser",
+							"host": ["{{base_url}}"],
+							"path": ["alluser"]
+						},
+						"description": "Get all registered users with statistics"
+					},
+					"response": [
+						{
+							"name": "Success Response",
+							"status": "OK",
+							"code": 200,
+							"body": "{\n    \"status\": 200,\n    \"resultcode\": true,\n    \"msg\": \"OK\",\n    \"data\": {\n        \"total_registered\": 1250,\n        \"total_applied\": 650,\n        \"users\": [\n            {\n                \"id\": 1,\n                \"full_name\": \"John Kamau Mwangi\",\n                \"email\": \"john.kamau@example.com\",\n                \"phone\": \"+254712345678\",\n                \"loan_status\": \"Applied\",\n                \"active\": true,\n                \"joined\": \"2024-01-15 10:30:00\"\n            },\n            {\n                \"id\": 2,\n                \"full_name\": \"Jane Wanjiku\",\n                \"email\": \"jane.wanjiku@example.com\",\n                \"phone\": \"+254723456789\",\n                \"loan_status\": \"Not Applied\",\n                \"active\": true,\n                \"joined\": \"2024-01-14 09:15:00\"\n            }\n        ]\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "Get Dashboard Stats",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Admin-Key",
+								"value": "9514103023e8101b4ab3d73e"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/adminstats",
+							"host": ["{{base_url}}"],
+							"path": ["adminstats"]
+						},
+						"description": "Get admin dashboard statistics"
+					},
+					"response": [
+						{
+							"name": "Success Response",
+							"status": "OK",
+							"code": 200,
+							"body": "{\n    \"status\": 200,\n    \"resultcode\": true,\n    \"msg\": \"Dashboard statistics retrieved.\",\n    \"data\": {\n        \"users\": {\n            \"total\": 1250,\n            \"kyc_verified\": 650,\n            \"active\": 1200,\n            \"today\": 15\n        },\n        \"loans\": {\n            \"total\": 450,\n            \"pending\": 25,\n            \"approved\": 100,\n            \"pending_disbursement\": 50,\n            \"disbursed\": 275,\n            \"total_amount\": 22500000\n        },\n        \"transactions\": {\n            \"total\": 1500,\n            \"today\": 45,\n            \"today_amount\": 125000,\n            \"total_amount\": 5250000\n        },\n        \"recent_activities\": [\n            {\n                \"description\": \"Loan application approved - User: John Kamau\",\n                \"date\": \"2024-01-15 11:00:00\"\n            },\n            {\n                \"description\": \"New user registration: Jane Wanjiku\",\n                \"date\": \"2024-01-15 10:45:00\"\n            }\n        ]\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "Get Pending Loans",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Admin-Key",
+								"value": "9514103023e8101b4ab3d73e"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/getPendingLoans",
+							"host": ["{{base_url}}"],
+							"path": ["getPendingLoans"]
+						},
+						"description": "Get all pending loans for admin review"
+					},
+					"response": [
+						{
+							"name": "Success Response",
+							"status": "OK",
+							"code": 200,
+							"body": "{\n    \"status\": 200,\n    \"resultcode\": true,\n    \"msg\": null,\n    \"data\": {\n        \"loans\": [\n            {\n                \"loan_id\": 1,\n                \"user\": {\n                    \"name\": \"John Kamau Mwangi\",\n                    \"email\": \"john.kamau@example.com\",\n                    \"phone\": \"+254712345678\"\n                },\n                \"amount\": 50000,\n                \"fee\": 7500,\n                \"duration\": 3,\n                \"status\": \"Pending Disbursement\",\n                \"created_at\": \"2024-01-15 11:00:00\"\n            }\n        ],\n        \"count\": 1\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "Process Loan (Approve/Disburse/Reject)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Admin-Key",
+								"value": "9514103023e8101b4ab3d73e"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"loan_id\": 1,\n    \"action\": \"disburse\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/processLoan",
+							"host": ["{{base_url}}"],
+							"path": ["processLoan"]
+						},
+						"description": "Process a loan - approve, disburse, or reject"
+					},
+					"response": [
+						{
+							"name": "Success Response",
+							"status": "OK",
+							"code": 200,
+							"body": "{\n    \"status\": 200,\n    \"resultcode\": true,\n    \"msg\": \"Loan has been disbursed to your account successfully.\"\n}"
+						}
+					]
+				},
+				{
+					"name": "Send Notifications",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Admin-Key",
+								"value": "9514103023e8101b4ab3d73e"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"message\": \"Dear {name}, don't miss out! Apply for your emergency loan today and get funds in less than 3 hours. Limited time offer!\",\n    \"subject\": \"Special Loan Offer - Branch Emergency Loans\",\n    \"target\": \"not_applied\",\n    \"method\": \"both\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/adminnotify",
+							"host": ["{{base_url}}"],
+							"path": ["adminnotify"]
+						},
+						"description": "Send bulk notifications via SMS, Email, or Both. Target: all, applied, not_applied"
+					},
+					"response": [
+						{
+							"name": "Success Response",
+							"status": "OK",
+							"code": 200,
+							"body": "{\n    \"status\": 200,\n    \"resultcode\": true,\n    \"msg\": \"Notifications sent successfully.\",\n    \"data\": {\n        \"sms\": {\n            \"sent\": 580,\n            \"failed\": 20,\n            \"total\": 600\n        },\n        \"email\": {\n            \"sent\": 600\n        }\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "Get All Deposits",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Admin-Key",
+								"value": "9514103023e8101b4ab3d73e"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/getAllDeposits",
+							"host": ["{{base_url}}"],
+							"path": ["getAllDeposits"]
+						},
+						"description": "Get all deposits ever made with summary statistics (total, completed, pending, amounts)"
+					},
+					"response": [
+						{
+							"name": "Success Response",
+							"status": "OK",
+							"code": 200,
+							"body": "{\n    \"status\": 200,\n    \"resultcode\": true,\n    \"msg\": \"Deposits retrieved successfully.\",\n    \"data\": {\n        \"deposits\": [\n            {\n                \"id\": 1,\n                \"user\": {\n                    \"name\": \"John Kamau Mwangi\",\n                    \"email\": \"john.kamau@example.com\",\n                    \"phone\": \"+254712345678\"\n                },\n                \"phone_used\": \"+254712345678\",\n                \"amount\": 99,\n                \"description\": \"KYC Verification Fee\",\n                \"reference\": \"TXN1234ABCD\",\n                \"status\": \"Completed\",\n                \"date\": \"2024-01-15 10:45:00\"\n            },\n            {\n                \"id\": 2,\n                \"user\": {\n                    \"name\": \"Jane Wanjiku\",\n                    \"email\": \"jane.wanjiku@example.com\",\n                    \"phone\": \"+254723456789\"\n                },\n                \"phone_used\": \"+254723456789\",\n                \"amount\": 1000,\n                \"description\": \"Loan processing fee\",\n                \"reference\": \"TXN5678EFGH\",\n                \"status\": \"Completed\",\n                \"date\": \"2024-01-15 11:30:00\"\n            }\n        ],\n        \"summary\": {\n            \"total_deposits\": 150,\n            \"total_completed\": 140,\n            \"total_pending\": 10,\n            \"total_amount\": 250000,\n            \"today_amount\": 5000\n        }\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "Get SMS Packages & Balance",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Admin-Key",
+								"value": "9514103023e8101b4ab3d73e"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/getSmsPackages",
+							"host": ["{{base_url}}"],
+							"path": ["getSmsPackages"]
+						},
+						"description": "Get available SMS packages, current SMS balance, and recent purchase history"
+					},
+					"response": [
+						{
+							"name": "Success Response",
+							"status": "OK",
+							"code": 200,
+							"body": "{\n    \"status\": 200,\n    \"resultcode\": true,\n    \"msg\": \"SMS packages retrieved.\",\n    \"data\": {\n        \"sms_balance\": 50,\n        \"packages\": [\n            {\"id\": 1, \"name\": \"250 SMS Units\", \"units\": 250, \"cost_per_unit\": 0.20, \"price\": 50},\n            {\"id\": 2, \"name\": \"1000 SMS Units\", \"units\": 1000, \"cost_per_unit\": 0.20, \"price\": 200},\n            {\"id\": 3, \"name\": \"2500 SMS Units\", \"units\": 2500, \"cost_per_unit\": 0.20, \"price\": 500},\n            {\"id\": 4, \"name\": \"5000 SMS Units\", \"units\": 5000, \"cost_per_unit\": 0.20, \"price\": 1000}\n        ],\n        \"recent_purchases\": []\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "Purchase SMS Credits",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "X-Admin-Key",
+								"value": "9514103023e8101b4ab3d73e"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"phone\": \"0712345678\",\n    \"package_id\": 2\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/purchaseSms",
+							"host": ["{{base_url}}"],
+							"path": ["purchaseSms"]
+						},
+						"description": "Purchase SMS credits via M-Pesa STK Push. package_id: 1=250units/KES50, 2=1000units/KES200, 3=2500units/KES500, 4=5000units/KES1000"
+					},
+					"response": [
+						{
+							"name": "Success Response",
+							"status": "OK",
+							"code": 200,
+							"body": "{\n    \"status\": 200,\n    \"resultcode\": true,\n    \"msg\": \"SMS credits purchased successfully! 1000 units added.\",\n    \"data\": {\n        \"package\": \"1000 SMS Units\",\n        \"units_added\": 1000,\n        \"amount_paid\": 200,\n        \"reference\": \"TXN_ABCD1234\",\n        \"new_balance\": 1050\n    }\n}"
+						},
+						{
+							"name": "Payment Failed",
+							"status": "Bad Request",
+							"code": 400,
+							"body": "{\n    \"status\": 400,\n    \"resultcode\": false,\n    \"msg\": \"Payment failed. Please try again.\",\n    \"data\": {\n        \"reference\": \"TXN_FAIL5678\"\n    }\n}"
+						}
+					]
+				}
+			]
+		}
+	]
+}

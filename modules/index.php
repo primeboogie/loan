@@ -2,111 +2,71 @@
 
 require_once "modules/networking.php";
 
+/**
+ * Route Handler - Maps URL actions to functions
+ *
+ * Client Routes (no auth required):
+ *   - basicdetails
+ *   - otpverification
+ *   - qualificationdetails
+ *   - approvekyc
+ *   - loanapply
+ *   - grabaccount
+ *
+ * Admin Routes (requires X-Admin-Key header):
+ *   - alluser
+ *   - adminstats
+ *   - adminnotify
+ *   - getPendingLoans
+ *   - processLoan
+ *   - getAllDeposits
+ *   - getSmsPackages
+ *   - purchaseSms
+ */
 
+// Public routes - no authentication required
 function unauthorized($action)
 {
-    switch ($action) {
-        case 'login':
-        case 'allusertest':
+    $publicRoutes = [
+        // Client registration flow
+        'basicdetails',
+        'otpverification',
+        'qualificationdetails',
+        'approvekyc',
+        'loanapply',
+        'grabaccount',
 
-        case 'memory':
-        case 'adminlogin':
-        case 'auth':
-        case 'freeuser':
-        case 'freeemail':
-        case 'returndefault':
-        case 'compenstaion':
-        case 'freephone':
-        case 'register':
-        case 'newpasswords':
-        case 'populateCountrys':
-        case 'affilatefee':
-        case 'flutterwave':
-        case 'giveOutRandId':
-        case 'populateAllCountrys':
+        // Public admin route
+        'alluser',
+    ];
 
-            fne($action);
-            break;
-        default:
-            authorized($action);
-    }
-}
-
-function authorized($action)
-{
-    if (auths()['status']) {
-        switch ($action) {
-            case 'alluser':
-            case 'suspendaccount':
-            case 'searchuser':
-            case 'tasks':
-            case 'addTariff':
-            case 'grabTariff':
-            case 'updatedailyBonus':
-            case 'deleteTariff':
-            case 'adminbalances':
-            case 'countryanaysis':
-            case 'fetchflutter':
-            case 'updateflutter':
-            case 'updatewhatsappgroup':
-            case 'addflutter':
-            case 'deactivateuser':
-            case 'upgradeupline':
-            case 'admindeposit';
-            case 'adminwithdrawals':
-            case 'grabupline':
-            case 'changeupline':
-            case 'updateaccurtemoney':
-            case 'adminTopEarners';
-            case 'userspindata';
-            case 'adminupdate':
-            case 'updatetrans':
-            case 'requestSpin':
-            case 'answerdquiz':
-            case 'payAds':
-            case 'freespin':
-            case 'weektrivia':
-            case 'soloupdate':
-            case 'requestpayment':
-            case 'confirmpayforclient':
-            case 'confirmtransactionforclient':
-            case 'payforclient':
-            case 'populatepayfroclient':
-            case 'grabpayment':
-            case 'deposithistory':
-            case 'userdata':
-            case 'myDownlines':
-            case 'allmyDownlines':
-            case 'stkpush':
-            case 'populateads':
-            case 'updatepassword':
-            case 'activateaccount':
-            case 'systemwithdrawal':
-            case 'populatetrivia':
-            case 'populateyoutube':
-            case 'populatetiktok':
-            case 'paytiktok':
-            case 'payyoutube':
-            case 'welcomebonus':
-            case 'dailybonus':
-            case 'withdrawalhistory':
-            case 'adminstats':
-            case 'registrationfee':
-            case 'recovercode':
-            case 'updateregistrationfee':
-            case 'manualpayload':
-            case 'allPaymentProcedure':
-            case 'singlePaymentProcedure':
-            case 'addPaymentMethod':
-            case 'addPaymentProcedure':
-            case 'updatePaymentProcedure':
-            case 'deletePaymentProcedure':
-            case 'updatePaymentMethod':
-            case 'statusPaymentMethod':
-            case 'deletePaymentMethod':
-            case 'claimDownline':
-                fne($action);
+    if (in_array($action, $publicRoutes)) {
+        if (function_exists($action)) {
+            return $action();
         }
     }
+
+    return false;
 }
-//  F0C0FBC2
+
+// Admin routes - requires authentication
+function authorized($action)
+{
+    $adminRoutes = [
+        'adminstats',
+        'adminnotify',
+        'getPendingLoans',
+        'processLoan',
+        'getAllDeposits',
+        'getSmsPackages',
+        'purchaseSms',
+    ];
+
+    if (in_array($action, $adminRoutes)) {
+        if (function_exists($action)) {
+            return $action();
+        }
+    }
+
+    return false;
+}

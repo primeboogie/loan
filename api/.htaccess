@@ -1,0 +1,13 @@
+# API Folder - URL Rewrite Rules
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /branchkenya/api/
+
+    # Don't rewrite requests for actual files
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+
+    # Rewrite /api/action to index.php?action=action
+    RewriteRule ^([a-zA-Z0-9_]+)/?$ index.php?action=$1 [QSA,L]
+</IfModule>
