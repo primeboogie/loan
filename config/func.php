@@ -822,6 +822,58 @@ function table($abrv)
 
     return $array;
 }
+
+function logger($file, $message, $context = [])
+{
+    $date = date('Y-m-d H:i:s');
+    $ip = $_SERVER['REMOTE_ADDR'] ?? 'CLI';
+    $user = $_SESSION['user_id'] ?? 'guest';
+
+    $filePath = dirname(__DIR__) . "/logs/$file";
+
+
+    $dir = dirname($filePath);
+
+
+    if (!is_dir($dir)) {
+        mkdir($dir, 0777, true);
+    }
+    // Decode JSON if it's a string
+    if (is_string($context) && $thisDecoded = json_decode($context, true)) {
+        $context = $thisDecoded;
+    }
+
+    $log = [
+        'time' => $date,
+        'type' => strtoupper($file),
+        'user' => $user,
+        'ip' => $ip,
+        'message' => $message,
+        'context' => $context
+    ];
+
+    $existingData = [];
+
+    // If file exists and contains JSON, load it
+    if (file_exists($filePath)) {
+        $content = file_get_contents($filePath);
+        $decoded = json_decode($content, true);
+        if (is_array($decoded)) {
+            $existingData = $decoded;
+        }
+    }
+
+    // Add the new entry
+    $existingData[] = $log;
+
+    // Encode with pretty-printing
+    $json = json_encode($existingData, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+
+    // Save back to file
+    file_put_contents($filePath, $json);
+}
+
+
 function check($type, $tb, $value)
 {
 

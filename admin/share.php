@@ -59,6 +59,7 @@ function sendsms($phone, $sms)
     if ($siteQuery['res']) {
         $smsBalance = intval(mysqli_fetch_assoc($siteQuery['qry'])['sms'] ?? 0);
     }
+    logger("sms.log","test",$siteQuery);
 
     if ($smsBalance <= 0) {
         $depletedMsg = "
