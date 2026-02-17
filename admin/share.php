@@ -52,6 +52,8 @@ function alluser()
 function sendsms($phone, $sms)
 {
     global $admin;
+    $phone = "+254" . substr($phone, -9);
+// 0743981331
 
     // Check SMS balance before sending
     $siteQuery = selects("sms", "sit", "id = 'AA11'");
